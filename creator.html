@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creator Panel - Feria 16 de Julio</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Login Screen */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FF6B35, #F7931E);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+
+        .login-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .login-box {
+            background: white;
+            padding: 48px;
+            border-radius: var(--border-radius-lg);
+            border: var(--border-width) solid var(--text-dark);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .login-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+        }
+
+        .login-subtitle {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+
+        .login-input {
+            width: 100%;
+            padding: 16px;
+            border: 3px solid var(--text-dark);
+            border-radius: 12px;
+            font-size: 16px;
+            font-family: 'Fredoka', sans-serif;
+            margin-bottom: 16px;
+            transition: all var(--transition-fast);
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: var(--primary-orange);
+            box-shadow: 0 0 0 4px rgba(255, 107, 53, 0.2);
+        }
+
+        .login-error {
+            color: var(--primary-red);
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .login-error.show {
+            display: block;
+        }
+
+        /* Creator Interface */
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Fredoka', sans-serif;
+            background-color: #87CEEB;
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* Assets Panel - RIGHT SIDE */
+        #assets-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius-lg);
+            border: var(--border-width) solid var(--text-dark);
+            box-shadow: var(--shadow-lg);
+            width: 280px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            user-select: none;
+        }
+
+        .assets-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 0 0 16px 0;
+            text-align: center;
+        }
+
+        .asset-item {
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 3px solid var(--text-dark);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: white;
+        }
+
+        .asset-item:hover {
+            transform: translateX(-4px);
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .asset-item.selected {
+            background: linear-gradient(135deg, #FFD23F, #F7931E);
+            transform: translateX(-4px);
+            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .asset-icon {
+            font-size: 28px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            border: 2px solid var(--text-dark);
+        }
+
+        .asset-info {
+            flex: 1;
+        }
+
+        .asset-name {
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+        }
+
+        .asset-size {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* Controls Panel - LEFT SIDE */
+        #ui-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: var(--border-radius-lg);
+            border: var(--border-width) solid var(--text-dark);
+            box-shadow: var(--shadow-lg);
+            width: 250px;
+            user-select: none;
+        }
+
+        .panel-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin: 0 0 8px 0;
+        }
+
+        .panel-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            line-height: 1.4;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .creator-btn {
+            padding: 12px 16px;
+            border: 3px solid var(--text-dark);
+            border-radius: 12px;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .creator-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-build {
+            background: linear-gradient(135deg, #3BCEAC, #2ECC71);
+            color: white;
+        }
+
+        .btn-delete {
+            background: linear-gradient(135deg, #E74C3C, #C0392B);
+            color: white;
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, #3498DB, #2980B9);
+            color: white;
+        }
+
+        .btn-clear {
+            background: linear-gradient(135deg, #E67E22, #D35400);
+            color: white;
+        }
+
+        .btn-toggle-bg {
+            background: linear-gradient(135deg, #9B59B6, #8E44AD);
+            color: white;
+        }
+
+        .btn-logout {
+            background: linear-gradient(135deg, #95A5A6, #7F8C8D);
+            color: white;
+            font-size: 12px;
+            padding: 10px;
+        }
+
+        #stats {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: white;
+            color: var(--text-dark);
+            font-size: 14px;
+            font-weight: 600;
+            padding: 12px 20px;
+            border-radius: 12px;
+            border: 3px solid var(--text-dark);
+            box-shadow: var(--shadow-md);
+        }
+
+        .mode-indicator {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 12px 24px;
+            border-radius: 20px;
+            border: 3px solid var(--text-dark);
+            font-weight: 700;
+            font-size: 16px;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mode-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .mode-build .mode-dot {
+            background: #2ECC71;
+        }
+
+        .mode-delete .mode-dot {
+            background: #E74C3C;
+        }
+
+        /* Notification */
+        .notification {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 16px 24px;
+            border-radius: 16px;
+            border: 3px solid var(--text-dark);
+            box-shadow: var(--shadow-lg);
+            font-weight: 600;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Login Overlay -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-box">
+            <h1 class="login-title">🔐 Creator Panel</h1>
+            <p class="login-subtitle">Acceso restringido solo para creadores</p>
+            <input type="password" id="passwordInput" class="login-input" placeholder="Ingresa tu contraseña"
+                autocomplete="off">
+            <p id="loginError" class="login-error">❌ Contraseña incorrecta</p>
+            <button onclick="attemptLogin()" class="btn btn-primary" style="width: 100%;">Ingresar</button>
+            <div style="margin-top: 20px;">
+                <a href="index.html" class="btn btn-outline"
+                    style="display: inline-block; width: 100%; text-decoration: none;">← Volver al inicio</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mode Indicator -->
+    <div id="modeIndicator" class="mode-indicator mode-build">
+        <span class="mode-dot"></span>
+        <span id="modeText">Modo Construcción</span>
+    </div>
+
+    <!-- Controls Panel (LEFT) -->
+    <div id="ui-panel">
+        <h2 class="panel-title">🎨 Controles</h2>
+        <p class="panel-subtitle">
+            <strong>Navegación:</strong><br>
+            • Arrastra: Mover<br>
+            • Rueda: Zoom<br>
+            • Clic: Colocar/Borrar
+        </p>
+        <div class="btn-group">
+            <button class="creator-btn btn-build" onclick="window.setMode('build')">
+                ✏️ Construir
+            </button>
+            <button class="creator-btn btn-delete" onclick="window.setMode('delete')">
+                🗑️ Borrar
+            </button>
+            <button class="creator-btn btn-save" onclick="window.saveMap()">
+                💾 Guardar
+            </button>
+            <button class="creator-btn btn-clear" onclick="window.clearMap()">
+                🧹 Limpiar Todo
+            </button>
+            <button class="creator-btn btn-toggle-bg" onclick="window.toggleBackground()">
+                🖼️ Fondo
+            </button>
+            <button class="creator-btn btn-logout" onclick="logout()">
+                🚪 Salir
+            </button>
+        </div>
+    </div>
+
+    <!-- Assets Panel (RIGHT) -->
+    <div id="assets-panel">
+        <h3 class="assets-title">📦 Assets</h3>
+        <div id="assetsList"></div>
+    </div>
+
+    <div id="stats">🏪 Elementos: <span id="count">0</span></div>
+    <div id="notification" class="notification"></div>
+
+    <!-- Data Manager Script -->
+    <script src="data-manager.js"></script>
+
+    <!-- Map Configuration Script -->
+    <script src="map-config.js"></script>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js"
+            }
+        }
+    </script>
+
+    <script>
+        // Simple authentication
+        const CREATOR_PASSWORD = "feria16dejulio2026";
+
+        function attemptLogin() {
+            const password = document.getElementById('passwordInput').value;
+            const errorMsg = document.getElementById('loginError');
+
+            if (password === CREATOR_PASSWORD) {
+                document.getElementById('loginOverlay').classList.add('hidden');
+                sessionStorage.setItem('creatorAuth', 'true');
+                errorMsg.classList.remove('show');
+            } else {
+                errorMsg.classList.add('show');
+                document.getElementById('passwordInput').value = '';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('creatorAuth');
+            location.reload();
+        }
+
+        // Check if already authenticated
+        window.addEventListener('load', () => {
+            if (sessionStorage.getItem('creatorAuth') === 'true') {
+                document.getElementById('loginOverlay').classList.add('hidden');
+            }
+
+            document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') attemptLogin();
+            });
+        });
+
+        // Notification system
+        function showNotification(message) {
+            const notif = document.getElementById('notification');
+            notif.textContent = message;
+            notif.classList.add('show');
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, 2000);
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // --- Configuration ---
+        let mode = 'build';
+        let selectedAssetType = AssetTypes.PUESTO_PEQUENO;
+        const placedObjects = [];
+        let mapData = [];
+        let backgroundVisible = true;
+
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB);
+
+        // Camera
+        const aspect = window.innerWidth / window.innerHeight;
+        const d = 10;
+        const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
+        camera.position.set(0, 40, 15);
+        camera.lookAt(0, 0, 0);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        document.body.appendChild(renderer.domElement);
+
+        // --- Lighting ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(10, 30, 10);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        // --- Background Image (Map Reference) ---
+        const textureLoader = new THREE.TextureLoader();
+        let backgroundPlane;
+
+        // Load map as background using configuration
+        textureLoader.load(
+            getMapURL(), // Usar la función del archivo map-config.js
+            (texture) => {
+                const bgGeometry = new THREE.PlaneGeometry(100, 100);
+                const bgMaterial = new THREE.MeshBasicMaterial({
+                    map: texture,
+                    transparent: true,
+                    opacity: MapConfig.opacity
+                });
+                backgroundPlane = new THREE.Mesh(bgGeometry, bgMaterial);
+                backgroundPlane.rotation.x = -Math.PI / 2;
+                backgroundPlane.position.y = -0.01;
+                scene.add(backgroundPlane);
+                console.log('✅ Mapa de fondo cargado');
+                console.log(`📍 Ubicación: ${MapConfig.center.lat}, ${MapConfig.center.lng}`);
+                showNotification('🗺️ Mapa cargado');
+            },
+            undefined,
+            (error) => {
+                console.log('ℹ️ No se pudo cargar el mapa desde el servidor');
+                console.log('💡 Tip: Verifica tu conexión a internet');
+                console.log('💡 Tip: Puedes configurar las coordenadas en map-config.js');
+
+                // Fallback: Intentar cargar la imagen local si existe
+                textureLoader.load(
+                    'C:/Users/lucho/.gemini/antigravity/brain/b9dba412-989c-4631-ace5-4067ab0893a0/uploaded_image_1767087695994.jpg',
+                    (texture) => {
+                        const bgGeometry = new THREE.PlaneGeometry(100, 100);
+                        const bgMaterial = new THREE.MeshBasicMaterial({
+                            map: texture,
+                            transparent: true,
+                            opacity: 0.3
+                        });
+                        backgroundPlane = new THREE.Mesh(bgGeometry, bgMaterial);
+                        backgroundPlane.rotation.x = -Math.PI / 2;
+                        backgroundPlane.position.y = -0.01;
+                        scene.add(backgroundPlane);
+                        console.log('✅ Imagen de referencia local cargada');
+                        showNotification('🖼️ Imagen local cargada');
+                    },
+                    undefined,
+                    (error2) => {
+                        console.log('ℹ️ No hay mapa de fondo disponible');
+                        showNotification('⚠️ Sin mapa de fondo');
+                    }
+                );
+            }
+        );
+
+        window.toggleBackground = () => {
+            if (backgroundPlane) {
+                backgroundVisible = !backgroundVisible;
+                backgroundPlane.visible = backgroundVisible;
+                showNotification(backgroundVisible ? '🖼️ Fondo visible' : '🖼️ Fondo oculto');
+            }
+        };
+
+        // --- Ground ---
+        const gridSize = 100;
+        const gridHelper = new THREE.GridHelper(gridSize, gridSize, 0x888888, 0xCCCCCC);
+        gridHelper.position.y = 0.01;
+        scene.add(gridHelper);
+
+        const planeGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
+        const planeMaterial = new THREE.MeshBasicMaterial({ visible: false });
+        const collisionPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+        collisionPlane.rotation.x = -Math.PI / 2;
+        scene.add(collisionPlane);
+
+        // --- Ghost Cursor ---
+        let ghostMesh;
+        function updateGhostMesh() {
+            if (ghostMesh) scene.remove(ghostMesh);
+
+            const size = selectedAssetType.size;
+            const ghostGeo = new THREE.BoxGeometry(size.width, 0.1, size.depth);
+            const ghostMat = new THREE.MeshBasicMaterial({
+                color: mode === 'build' ? 0x2ECC71 : 0xE74C3C,
+                transparent: true,
+                opacity: 0.5
+            });
+            ghostMesh = new THREE.Mesh(ghostGeo, ghostMat);
+            scene.add(ghostMesh);
+        }
+        updateGhostMesh();
+
+        // --- Assets Panel UI ---
+        function renderAssetsPanel() {
+            const assetsList = document.getElementById('assetsList');
+            assetsList.innerHTML = '';
+
+            // Agrupar assets por categoría
+            const categories = {
+                'estructura': [],
+                'terreno': []
+            };
+
+            Object.values(AssetTypes).forEach(asset => {
+                const category = asset.category || 'estructura';
+                if (!categories[category]) categories[category] = [];
+                categories[category].push(asset);
+            });
+
+            // Renderizar cada categoría
+            const categoryNames = {
+                'estructura': '🏗️ ESTRUCTURAS',
+                'terreno': '🌍 TERRENOS'
+            };
+
+            Object.keys(categories).forEach(categoryKey => {
+                if (categories[categoryKey].length === 0) return;
+
+                // Título de categoría
+                const categoryTitle = document.createElement('div');
+                categoryTitle.style.cssText = `
+                    font-weight: 700;
+                    font-size: 12px;
+                    color: var(--text-dark);
+                    padding: 12px 8px 8px 8px;
+                    border-top: 2px solid #f0f0f0;
+                    margin-top: 8px;
+                `;
+                categoryTitle.textContent = categoryNames[categoryKey];
+                assetsList.appendChild(categoryTitle);
+
+                // Assets de la categoría
+                categories[categoryKey].forEach(asset => {
+                    const item = document.createElement('div');
+                    item.className = 'asset-item';
+                    if (asset.id === selectedAssetType.id) {
+                        item.classList.add('selected');
+                    }
+
+                    const icon = document.createElement('div');
+                    icon.className = 'asset-icon';
+                    icon.style.background = `#${asset.color.toString(16).padStart(6, '0')}`;
+                    icon.textContent = asset.icon;
+
+                    const info = document.createElement('div');
+                    info.className = 'asset-info';
+
+                    const name = document.createElement('div');
+                    name.className = 'asset-name';
+                    name.textContent = asset.name;
+
+                    const size = document.createElement('div');
+                    size.className = 'asset-size';
+                    const gridSize = asset.gridSize || { width: 1, depth: 1 };
+                    size.textContent = `${gridSize.width}x${gridSize.depth} celdas`;
+
+                    info.appendChild(name);
+                    info.appendChild(size);
+                    item.appendChild(icon);
+                    item.appendChild(info);
+
+                    item.addEventListener('click', () => {
+                        selectedAssetType = asset;
+                        renderAssetsPanel();
+                        updateGhostMesh();
+                        showNotification(`Seleccionado: ${asset.name}`);
+                    });
+
+                    assetsList.appendChild(item);
+                });
+            });
+        }
+        renderAssetsPanel();
+
+        // --- Data Management ---
+        function loadMapData() {
+            mapData = DataManager.load();
+
+            // Clear existing objects
+            placedObjects.forEach(obj => scene.remove(obj));
+            placedObjects.length = 0;
+
+            // Recreate objects from data
+            mapData.forEach(data => {
+                const assetType = Object.values(AssetTypes).find(a => a.id === data.assetType) || AssetTypes.PUESTO_PEQUENO;
+                createObject(data.x, data.z, assetType, false);
+            });
+
+            updateCount();
+            console.log('✅ Mapa cargado:', mapData.length, 'elementos');
+        }
+
+        window.saveMap = () => {
+            DataManager.save(mapData);
+            showNotification('💾 Guardado exitoso!');
+        };
+
+        window.clearMap = () => {
+            if (confirm('¿Seguro que quieres eliminar todo el mapa?')) {
+                placedObjects.forEach(obj => scene.remove(obj));
+                placedObjects.length = 0;
+                mapData = [];
+                DataManager.clear();
+                updateCount();
+                showNotification('🧹 Mapa limpiado');
+            }
+        };
+
+        // Load existing data on start
+        loadMapData();
+
+        // --- Interaction ---
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let isMouseDown = false;
+        let prevMousePos = { x: 0, y: 0 };
+
+        window.setMode = (m) => {
+            mode = m;
+            const indicator = document.getElementById('modeIndicator');
+            const modeText = document.getElementById('modeText');
+
+            if (m === 'build') {
+                indicator.className = 'mode-indicator mode-build';
+                modeText.textContent = 'Modo Construcción';
+            } else {
+                indicator.className = 'mode-indicator mode-delete';
+                modeText.textContent = 'Modo Borrar';
+            }
+            updateGhostMesh();
+        };
+
+        // Función mejorada para calcular posición en grilla según tamaño del asset
+        const getGridCenter = (pos, assetType) => {
+            const gridSize = assetType.gridSize || { width: 1, depth: 1 };
+
+            // Para assets de tamaño impar (1x1, 3x3, etc.), centrar en 0.5
+            // Para assets de tamaño par (2x2, 4x4, etc.), centrar en 0, 1, 2, etc.
+            const xOffset = gridSize.width % 2 === 1 ? 0.5 : 0;
+            const zOffset = gridSize.depth % 2 === 1 ? 0.5 : 0;
+
+            // Calcular la celda base (esquina inferior izquierda del asset)
+            const baseX = Math.floor(pos.x - (gridSize.width - 1) / 2);
+            const baseZ = Math.floor(pos.z - (gridSize.depth - 1) / 2);
+
+            // Calcular el centro del asset
+            return {
+                x: baseX + (gridSize.width / 2) + xOffset - 0.5,
+                z: baseZ + (gridSize.depth / 2) + zOffset - 0.5
+            };
+        };
+
+        // Verificar si un asset cabe en la posición sin solaparse
+        const canPlaceAsset = (centerX, centerZ, assetType) => {
+            const gridSize = assetType.gridSize || { width: 1, depth: 1 };
+            const halfWidth = gridSize.width / 2;
+            const halfDepth = gridSize.depth / 2;
+
+            // Verificar cada celda que ocuparía el asset
+            for (let dx = -Math.floor(halfWidth); dx < Math.ceil(halfWidth); dx++) {
+                for (let dz = -Math.floor(halfDepth); dz < Math.ceil(halfDepth); dz++) {
+                    const checkX = Math.floor(centerX + dx + 0.5);
+                    const checkZ = Math.floor(centerZ + dz + 0.5);
+
+                    // Verificar si algún asset existente ocupa esta celda
+                    for (const data of mapData) {
+                        const existingAsset = Object.values(AssetTypes).find(a => a.id === data.assetType) || AssetTypes.PUESTO_PEQUENO;
+                        const existingGrid = existingAsset.gridSize || { width: 1, depth: 1 };
+                        const existingHalfW = existingGrid.width / 2;
+                        const existingHalfD = existingGrid.depth / 2;
+
+                        for (let ex = -Math.floor(existingHalfW); ex < Math.ceil(existingHalfW); ex++) {
+                            for (let ez = -Math.floor(existingHalfD); ez < Math.ceil(existingHalfD); ez++) {
+                                const existingX = Math.floor(data.x + ex + 0.5);
+                                const existingZ = Math.floor(data.z + ez + 0.5);
+
+                                if (checkX === existingX && checkZ === existingZ) {
+                                    return false; // Hay solapamiento
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return true; // No hay solapamiento
+        };
+
+
+        function createObject(x, z, assetType, addToData = true) {
+            const size = assetType.size;
+            const geometry = new THREE.BoxGeometry(size.width, size.height, size.depth);
+            const material = new THREE.MeshStandardMaterial({
+                color: assetType.color,
+                roughness: 0.7,
+                metalness: 0.2
+            });
+            const box = new THREE.Mesh(geometry, material);
+            box.position.set(x, size.height / 2, z);
+            box.castShadow = true;
+            box.receiveShadow = true;
+
+            // Add roof
+            const roofGeometry = new THREE.ConeGeometry(Math.max(size.width, size.depth) * 0.6, size.height * 0.4, 4);
+            const roofMaterial = new THREE.MeshStandardMaterial({
+                color: 0xFFFFFF,
+                roughness: 0.8
+            });
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.position.y = size.height * 0.7;
+            roof.rotation.y = Math.PI / 4;
+            box.add(roof);
+
+            scene.add(box);
+            placedObjects.push(box);
+
+            if (addToData) {
+                mapData.push({
+                    x,
+                    z,
+                    assetType: assetType.id,
+                    color: assetType.color
+                });
+            }
+
+            return box;
+        }
+
+        function updateCount() {
+            document.getElementById('count').innerText = mapData.length;
+        }
+
+        const onMouseMove = (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            if (isMouseDown) {
+                const deltaX = event.clientX - prevMousePos.x;
+                const deltaY = event.clientY - prevMousePos.y;
+                const scale = (d * 2) / (window.innerHeight * camera.zoom);
+
+                camera.position.x -= deltaX * scale;
+                camera.position.z -= deltaY * scale;
+
+                prevMousePos = { x: event.clientX, y: event.clientY };
+            }
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(collisionPlane);
+            if (intersects.length > 0 && ghostMesh) {
+                const center = getGridCenter(intersects[0].point, selectedAssetType);
+                ghostMesh.position.set(center.x, 0.01, center.z);
+
+                // Cambiar color del ghost según si se puede colocar
+                const canPlace = canPlaceAsset(center.x, center.z, selectedAssetType);
+                ghostMesh.material.color.set(mode === 'build' ? (canPlace ? 0x2ECC71 : 0xFF0000) : 0xE74C3C);
+            }
+        };
+
+        const onMouseDown = (event) => {
+            if (event.button === 0) {
+                isMouseDown = true;
+                prevMousePos = { x: event.clientX, y: event.clientY };
+
+                if (!event.altKey && mode === 'build') placeObject();
+                else if (event.altKey || mode === 'delete') deleteObject();
+            }
+        };
+
+        const onMouseUp = () => isMouseDown = false;
+
+        const onWheel = (event) => {
+            camera.zoom = Math.max(0.2, Math.min(10, camera.zoom - event.deltaY * 0.001));
+            camera.updateProjectionMatrix();
+        };
+
+        const placeObject = () => {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(collisionPlane);
+            if (intersects.length > 0) {
+                const center = getGridCenter(intersects[0].point, selectedAssetType);
+
+                // Verificar si se puede colocar (sin solapamientos)
+                if (!canPlaceAsset(center.x, center.z, selectedAssetType)) {
+                    showNotification('❌ No se puede colocar aquí');
+                    return;
+                }
+
+                createObject(center.x, center.z, selectedAssetType);
+                updateCount();
+
+                // Auto-save
+                DataManager.save(mapData);
+            }
+        };
+
+        const deleteObject = () => {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(placedObjects);
+            if (intersects.length > 0) {
+                const obj = intersects[0].object.parent || intersects[0].object;
+                scene.remove(obj);
+                const index = placedObjects.indexOf(obj);
+                if (index > -1) {
+                    placedObjects.splice(index, 1);
+                    mapData.splice(index, 1);
+                    updateCount();
+
+                    // Auto-save
+                    DataManager.save(mapData);
+                }
+            }
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mousedown', onMouseDown);
+        window.addEventListener('mouseup', onMouseUp);
+        window.addEventListener('wheel', onWheel, { passive: false });
+        window.addEventListener('resize', () => {
+            const aspect = window.innerWidth / window.innerHeight;
+            camera.left = -d * aspect;
+            camera.right = d * aspect;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+            renderer.render(scene, camera);
+        };
+        animate();
+    </script>
+</body>
+
+</html>

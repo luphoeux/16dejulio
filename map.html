@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explorar Mapa 3D - Feria 16 de Julio</title>
+    <meta name="description"
+        content="Explora la Feria 16 de Julio en 3D. Navega por los puestos y descubre productos en una experiencia interactiva única.">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: 'Fredoka', sans-serif;
+            background: linear-gradient(135deg, #FF6B35, #F7931E);
+        }
+
+        canvas {
+            display: block;
+        }
+
+        /* Header */
+        .map-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, rgba(44, 62, 80, 0.95) 0%, rgba(44, 62, 80, 0.7) 100%);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            border-bottom: 3px solid var(--primary-orange);
+        }
+
+        .map-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .back-btn {
+            background: white;
+            color: var(--text-dark);
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 3px solid var(--text-dark);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all var(--transition-fast);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .back-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        /* Controls Panel */
+        .controls-panel {
+            position: absolute;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 20px 32px;
+            border-radius: 20px;
+            border: 4px solid var(--text-dark);
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            gap: 24px;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .control-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .control-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-red));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            border: 2px solid var(--text-dark);
+        }
+
+        /* Info Panel */
+        .info-panel {
+            position: absolute;
+            top: 80px;
+            right: 24px;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            border: 3px solid var(--text-dark);
+            box-shadow: var(--shadow-lg);
+            width: 250px;
+            z-index: 100;
+        }
+
+        .info-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-dark);
+        }
+
+        .info-stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 2px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        .info-stat:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-weight: 700;
+            color: var(--primary-orange);
+        }
+
+        /* Welcome Message */
+        .welcome-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            border: 4px solid var(--text-dark);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            z-index: 200;
+            max-width: 500px;
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .welcome-message.hidden {
+            display: none;
+        }
+
+        .welcome-title {
+            font-family: 'Fredoka', sans-serif;
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-dark);
+        }
+
+        .welcome-text {
+            font-size: 16px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            line-height: 1.6;
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #FF6B35, #F7931E);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 300;
+            transition: opacity 0.5s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 80px;
+            height: 80px;
+            border: 8px solid rgba(255, 255, 255, 0.3);
+            border-top: 8px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: white;
+            font-size: 24px;
+            font-weight: 700;
+            margin-top: 24px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .controls-panel {
+                flex-direction: column;
+                gap: 12px;
+                padding: 16px 20px;
+            }
+
+            .info-panel {
+                width: 200px;
+                padding: 16px;
+            }
+
+            .map-title {
+                font-size: 18px;
+            }
+        }
+
+        /* Camera Controls */
+        .camera-controls {
+            position: absolute;
+            top: 80px;
+            left: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .camera-btn {
+            background: white;
+            border: 3px solid var(--text-dark);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .camera-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .camera-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+        }
+
+        .camera-btn.active {
+            background: linear-gradient(135deg, var(--primary-orange), var(--primary-red));
+            color: white;
+        }
+
+        /* Compass */
+        .compass-container {
+            position: absolute;
+            bottom: 140px;
+            right: 24px;
+            z-index: 100;
+        }
+
+        .compass {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border: 4px solid var(--text-dark);
+            border-radius: 50%;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .compass:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .compass:active {
+            transform: scale(0.95);
+        }
+
+        .compass-needle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            transform-origin: center;
+            transition: transform 0.3s ease;
+        }
+
+        .compass-needle::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            left: -3px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 30px solid #E74C3C;
+        }
+
+        .compass-needle::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -3px;
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 30px solid #2C3E50;
+        }
+
+        .compass-label {
+            position: absolute;
+            font-weight: 700;
+            font-size: 12px;
+            color: var(--text-dark);
+        }
+
+        .compass-label.n {
+            top: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #E74C3C;
+        }
+
+        .compass-label.s {
+            bottom: 4px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .compass-label.e {
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .compass-label.w {
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .compass-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: var(--text-dark);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Cargando mapa 3D...</p>
+    </div>
+
+    <!-- Header -->
+    <header class="map-header">
+        <div class="map-title">
+            <span>🗺️</span>
+            <span>Feria 16 de Julio</span>
+        </div>
+        <a href="index.html" class="back-btn">← Volver</a>
+    </header>
+
+    <!-- Info Panel -->
+    <div class="info-panel">
+        <h3 class="info-title">📊 Estadísticas</h3>
+        <div class="info-stat">
+            <span class="stat-label">Puestos</span>
+            <span class="stat-value" id="stallCount">0</span>
+        </div>
+        <div class="info-stat">
+            <span class="stat-label">Área</span>
+            <span class="stat-value">100x100m</span>
+        </div>
+        <div class="info-stat">
+            <span class="stat-label">Zoom</span>
+            <span class="stat-value" id="zoomLevel">1.0x</span>
+        </div>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
+        <div class="control-item">
+            <div class="control-icon">🖱️</div>
+            <span>Arrastra para mover</span>
+        </div>
+        <div class="control-item">
+            <div class="control-icon">🔄</div>
+            <span>Shift + Arrastra para rotar (3D)</span>
+        </div>
+        <div class="control-item">
+            <div class="control-icon">🔍</div>
+            <span>Rueda para zoom</span>
+        </div>
+        <div class="control-item">
+            <div class="control-icon">👆</div>
+            <span>Clic para info</span>
+        </div>
+    </div>
+
+    <!-- Camera Controls -->
+    <div class="camera-controls">
+        <button id="isometricBtn" class="camera-btn active" onclick="setCameraMode('isometric')">
+            📐 Isométrica
+        </button>
+        <button id="freeBtn" class="camera-btn" onclick="setCameraMode('free')">
+            🎮 Libre 3D
+        </button>
+    </div>
+
+    <!-- Compass -->
+    <div class="compass-container">
+        <div class="compass" onclick="resetCameraRotation()" title="Clic para resetear orientación">
+            <div class="compass-label n">N</div>
+            <div class="compass-label s">S</div>
+            <div class="compass-label e">E</div>
+            <div class="compass-label w">O</div>
+            <div id="compassNeedle" class="compass-needle"></div>
+            <div class="compass-center"></div>
+        </div>
+    </div>
+
+    <!-- Welcome Message -->
+    <div id="welcomeMessage" class="welcome-message">
+        <h2 class="welcome-title">¡Bienvenido! 👋</h2>
+        <p class="welcome-text">
+            Explora la Feria 16 de Julio en 3D. Usa el mouse para navegar y descubrir todos los puestos.
+            <br><br>
+            <strong>Nuevos controles:</strong><br>
+            • Cambia entre vista isométrica y libre<br>
+            • Usa la brújula para orientarte<br>
+            • Clic en la brújula para resetear
+        </p>
+        <button class="btn btn-primary" onclick="closeWelcome()">Comenzar Exploración</button>
+    </div>
+
+    <!-- Data Manager Script -->
+    <script src="data-manager.js"></script>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js"
+            }
+        }
+    </script>
+
+    <script>
+        function closeWelcome() {
+            document.getElementById('welcomeMessage').classList.add('hidden');
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // Hide loading screen after a moment
+        setTimeout(() => {
+            document.getElementById('loadingScreen').classList.add('hidden');
+        }, 1500);
+
+        // --- Scene Setup ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x87CEEB); // Sky blue
+
+        // Camera System
+        const aspect = window.innerWidth / window.innerHeight;
+        const d = 10;
+
+        // Orthographic Camera (Isometric View)
+        const orthoCamera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
+        orthoCamera.position.set(0, 40, 15);
+        orthoCamera.lookAt(0, 0, 0);
+
+        // Perspective Camera (Free 3D View)
+        const perspCamera = new THREE.PerspectiveCamera(60, aspect, 0.1, 1000);
+        perspCamera.position.set(0, 30, 30);
+        perspCamera.lookAt(0, 0, 0);
+
+        // Active camera (start with orthographic)
+        let camera = orthoCamera;
+        let cameraMode = 'isometric';
+        let cameraRotationY = 0; // Track camera rotation for compass
+
+        // Camera control functions
+        window.setCameraMode = (mode) => {
+            cameraMode = mode;
+
+            if (mode === 'isometric') {
+                camera = orthoCamera;
+                document.getElementById('isometricBtn').classList.add('active');
+                document.getElementById('freeBtn').classList.remove('active');
+            } else {
+                camera = perspCamera;
+                document.getElementById('freeBtn').classList.add('active');
+                document.getElementById('isometricBtn').classList.remove('active');
+            }
+
+            // Update camera aspect on switch
+            if (camera.isPerspectiveCamera) {
+                camera.aspect = aspect;
+                camera.updateProjectionMatrix();
+            } else {
+                camera.left = -d * aspect;
+                camera.right = d * aspect;
+                camera.updateProjectionMatrix();
+            }
+        };
+
+        window.resetCameraRotation = () => {
+            cameraRotationY = 0;
+            camera.position.set(camera === orthoCamera ? 0 : 0, camera.position.y, camera === orthoCamera ? 15 : 30);
+            camera.lookAt(0, 0, 0);
+            updateCompass();
+        };
+
+        // Update compass needle
+        function updateCompass() {
+            const needle = document.getElementById('compassNeedle');
+            const rotationDeg = (cameraRotationY * 180 / Math.PI);
+            needle.style.transform = `rotate(${-rotationDeg}deg)`;
+        }
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        document.body.appendChild(renderer.domElement);
+
+        // --- Lighting ---
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        dirLight.position.set(10, 30, 10);
+        dirLight.castShadow = true;
+        dirLight.shadow.camera.left = -50;
+        dirLight.shadow.camera.right = 50;
+        dirLight.shadow.camera.top = 50;
+        dirLight.shadow.camera.bottom = -50;
+        scene.add(dirLight);
+
+        // --- Ground ---
+        const gridSize = 100;
+
+        // Ground plane with texture
+        const groundGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
+        const groundMaterial = new THREE.MeshStandardMaterial({
+            color: 0xE8DCC4,
+            roughness: 0.8
+        });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        scene.add(ground);
+
+        // Grid
+        const gridHelper = new THREE.GridHelper(gridSize, gridSize, 0xCCBBAA, 0xDDCCBB);
+        gridHelper.position.y = 0.01;
+        scene.add(gridHelper);
+
+        // --- Load Map Data from LocalStorage ---
+        let mapData = DataManager.load();
+
+        // If no data exists, use demo data
+        if (mapData.length === 0) {
+            console.log('ℹ️ No hay datos guardados, usando datos de demostración');
+            mapData = [
+                { x: 0.5, z: 0.5, color: 0xFF6B35, assetType: 'puesto_pequeno' },
+                { x: 2.5, z: 0.5, color: 0x3BCEAC, assetType: 'puesto_pequeno' },
+                { x: 4.5, z: 0.5, color: 0xFFD23F, assetType: 'puesto_pequeno' },
+                { x: 0.5, z: 2.5, color: 0x9B59B6, assetType: 'puesto_mediano' },
+                { x: 2.5, z: 2.5, color: 0xE74C3C, assetType: 'puesto_mediano' },
+                { x: 4.5, z: 2.5, color: 0x2ECC71, assetType: 'puesto_grande' },
+            ];
+        }
+
+        const stallObjects = [];
+
+        // Create stalls from data
+        mapData.forEach(data => {
+            // Get asset type or use default
+            const assetType = Object.values(AssetTypes).find(a => a.id === data.assetType) || AssetTypes.PUESTO_PEQUENO;
+            const size = assetType.size;
+
+            const geometry = new THREE.BoxGeometry(size.width, size.height, size.depth);
+            const material = new THREE.MeshStandardMaterial({
+                color: data.color,
+                roughness: 0.7,
+                metalness: 0.2
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            mesh.position.set(data.x, size.height / 2, data.z);
+            mesh.castShadow = true;
+            mesh.receiveShadow = true;
+
+            // Add a little roof
+            const roofGeometry = new THREE.ConeGeometry(Math.max(size.width, size.depth) * 0.6, size.height * 0.4, 4);
+            const roofMaterial = new THREE.MeshStandardMaterial({
+                color: 0xFFFFFF,
+                roughness: 0.8
+            });
+            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
+            roof.position.y = size.height * 0.7;
+            roof.rotation.y = Math.PI / 4;
+            mesh.add(roof);
+
+            scene.add(mesh);
+            stallObjects.push(mesh);
+        });
+
+        // Update stall count
+        document.getElementById('stallCount').textContent = mapData.length;
+
+        // --- Interaction ---
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let isMouseDown = false;
+        let prevMousePos = { x: 0, y: 0 };
+
+        const onMouseMove = (event) => {
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            if (isMouseDown) {
+                const deltaX = event.clientX - prevMousePos.x;
+                const deltaY = event.clientY - prevMousePos.y;
+
+                // Shift key for rotation (only in free mode)
+                if (event.shiftKey && cameraMode === 'free') {
+                    // Rotate camera around center
+                    cameraRotationY += deltaX * 0.01;
+
+                    const radius = Math.sqrt(camera.position.x ** 2 + camera.position.z ** 2);
+                    camera.position.x = radius * Math.sin(cameraRotationY);
+                    camera.position.z = radius * Math.cos(cameraRotationY);
+                    camera.lookAt(0, 0, 0);
+
+                    updateCompass();
+                } else {
+                    // Pan camera
+                    const scale = camera.isOrthographicCamera
+                        ? (d * 2) / (window.innerHeight * camera.zoom)
+                        : camera.position.y * 0.001;
+
+                    camera.position.x -= deltaX * scale;
+                    camera.position.z -= deltaY * scale;
+                }
+
+                prevMousePos = { x: event.clientX, y: event.clientY };
+            }
+        };
+
+        const onMouseDown = (event) => {
+            if (event.button === 0) {
+                isMouseDown = true;
+                prevMousePos = { x: event.clientX, y: event.clientY };
+            }
+        };
+
+        const onMouseUp = () => {
+            isMouseDown = false;
+        };
+
+        const onClick = (event) => {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(stallObjects);
+
+            if (intersects.length > 0) {
+                const obj = intersects[0].object;
+                // Animate click
+                obj.scale.set(1.1, 1.1, 1.1);
+                setTimeout(() => {
+                    obj.scale.set(1, 1, 1);
+                }, 200);
+
+                console.log('Puesto clickeado:', obj.position);
+            }
+        };
+
+        const onWheel = (event) => {
+            if (camera.isOrthographicCamera) {
+                // Zoom for orthographic camera
+                const oldZoom = camera.zoom;
+                camera.zoom = Math.max(0.5, Math.min(5, camera.zoom - event.deltaY * 0.001));
+                camera.updateProjectionMatrix();
+            } else {
+                // Move camera closer/farther for perspective
+                const zoomSpeed = 0.1;
+                const direction = new THREE.Vector3();
+                camera.getWorldDirection(direction);
+
+                camera.position.x += direction.x * event.deltaY * zoomSpeed;
+                camera.position.y += direction.y * event.deltaY * zoomSpeed;
+                camera.position.z += direction.z * event.deltaY * zoomSpeed;
+            }
+
+            // Update zoom display
+            const zoomValue = camera.isOrthographicCamera ? camera.zoom : (30 / camera.position.y);
+            document.getElementById('zoomLevel').textContent = zoomValue.toFixed(1) + 'x';
+        };
+
+
+        window.addEventListener('mousemove', onMouseMove);
+        window.addEventListener('mousedown', onMouseDown);
+        window.addEventListener('mouseup', onMouseUp);
+        window.addEventListener('click', onClick);
+        window.addEventListener('wheel', onWheel, { passive: false });
+
+        window.addEventListener('resize', () => {
+            const aspect = window.innerWidth / window.innerHeight;
+            camera.left = -d * aspect;
+            camera.right = d * aspect;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // --- Animation Loop ---
+        let time = 0;
+        const animate = () => {
+            requestAnimationFrame(animate);
+            time += 0.01;
+
+            // Subtle floating animation for stalls
+            stallObjects.forEach((stall, index) => {
+                stall.position.y = 0.4 + Math.sin(time + index * 0.5) * 0.02;
+            });
+
+            renderer.render(scene, camera);
+        };
+        animate();
+    </script>
+</body>
+
+</html>
