@@ -1,0 +1,21 @@
+{
+  "name": "16-de-julio---mapa",
+  "version": "1.0.0",
+  "description": "Proyecto de mapa 3D interactivo de la Feria 16 de Julio con estilo cartoon inspirado en Overcooked.",
+  "main": "data-manager.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luphoeux/16dejulio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/luphoeux/16dejulio/issues"
+  },
+  "homepage": "https://github.com/luphoeux/16dejulio#readme"
+}
