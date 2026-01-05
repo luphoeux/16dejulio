@@ -20,6 +20,53 @@
             display: block;
         }
 
+        /* Custom Point Cursor */
+        body, a, button, .back-btn {
+            cursor: none !important;
+        }
+
+        .dot-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 99999;
+            border: 2px solid #000000;
+            top: 0;
+            left: 0;
+            transform: translate3d(0, 0, 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: width 0.1s, height 0.1s, background 0.1s;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            will-change: transform;
+        }
+
+        .dot-cursor::after {
+            content: '';
+            font-size: 22px;
+            position: absolute;
+            transition: opacity 0.1s;
+            opacity: 0;
+        }
+
+        .dot-cursor.grabbing {
+            background: transparent;
+            width: 40px;
+            height: 40px;
+            border-color: transparent;
+            box-shadow: none;
+            transform: translate3d(-10px, -10px, 0); /* Adjust for larger size */
+        }
+
+        .dot-cursor.grabbing::after {
+            content: '✊';
+            opacity: 1;
+        }
+
         /* Header */
         .map-header {
             position: absolute;
@@ -108,6 +155,7 @@
 
         /* Info Panel */
         .info-panel {
+            display: none; /* Hidden per user request */
             position: absolute;
             top: 80px;
             right: 24px;
@@ -397,24 +445,641 @@
             border-radius: 50%;
             transform: translate(-50%, -50%);
         }
+        /* Popup */
+        .stall-popup {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            transform: translateX(-40px);
+            background: rgba(255, 255, 255, 0.98);
+            padding: 24px;
+            border-radius: 24px;
+            border: 4px solid var(--text-dark);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            z-index: 5000;
+            width: 320px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: left;
+            backdrop-filter: blur(10px);
+        }
+
+        .stall-popup.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateX(0);
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            background: #f0f0f0;
+            border: 2px solid var(--text-dark);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .popup-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+            margin-right: 32px;
+        }
+
+        .popup-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            background: var(--primary-orange);
+            color: white;
+            margin-bottom: 16px;
+        }
+
+        .popup-info {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .info-icon {
+            font-size: 18px;
+        }
+
+        .info-text strong {
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        /* ONI Hover Tooltip */
+        #tag-tooltip {
+            position: fixed;
+            pointer-events: none;
+            background: rgba(26, 31, 38, 0.95);
+            color: #e0e0e0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border-left: 4px solid #3bceac;
+            z-index: 10000;
+            display: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            font-family: 'Fredoka', sans-serif;
+            min-width: 120px;
+        }
+        #tag-tooltip .title { font-weight: 700; font-size: 16px; color: #fff; margin-bottom: 4px; }
+        #tag-tooltip li::before { content: "•"; color: #3bceac; }
+        #tag-tooltip .subtitle { font-size: 11px; color: #3bceac; text-transform: uppercase; margin-bottom: 12px; font-weight: 700; }
+        #tag-tooltip ul { padding: 0; margin: 0; list-style: none; }
+        #tag-tooltip li { font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+
+        /* --- ONI STYLE UI (DOCK) --- */
+        :root {
+            --oni-bg: #1a1f26;
+            --oni-panel: #272d37;
+            --oni-accent: #3bceac;
+            --oni-text: #e0e0e0;
+            --oni-border: #404854;
+        }
+
+        #bottom-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
+            /* Loader Styles */
+        #loader-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #0a0c10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 1s ease-out;
+            color: #4fc3f7;
+            font-family: 'Outfit', sans-serif;
+            letter-spacing: 4px;
+        }
+        .loader-bar {
+            width: 200px;
+            height: 2px;
+            background: rgba(79, 195, 247, 0.2);
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .loader-progress {
+            width: 0%;
+            height: 100%;
+            background: #4fc3f7;
+            box-shadow: 0 0 10px #4fc3f7;
+            transition: width 0.3s;
+        }
+    backdrop-filter: blur(10px);
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        .dock-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dock-divider {
+            width: 2px;
+            height: 32px;
+            background: var(--oni-border);
+            margin: 0 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 54px;
+            height: 54px;
+            color: var(--oni-text);
+            cursor: pointer;
+            border-radius: 10px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 10px;
+            gap: 4px;
+            border: 1px solid transparent;
+        }
+        .nav-item .icon { font-size: 20px; }
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .nav-item.active {
+            background: rgba(59, 206, 172, 0.15);
+            color: var(--oni-accent);
+            border-color: var(--oni-accent);
+            box-shadow: 0 0 15px rgba(59, 206, 172, 0.3);
+        }
+        .nav-item.highlight { 
+            background: linear-gradient(135deg, #3bceac, #2ecc71); 
+            color: #1a1f26; 
+            font-weight: bold; 
+        }
+        .nav-item.highlight .icon { color: #1a1f26; }
+
+        .info-stat-dock {
+            color: var(--oni-text);
+            font-size: 11px;
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .info-stat-dock .value {
+            color: var(--oni-accent);
+            font-size: 16px;
+        }
+
+        /* Sci-Fi Loader Overlay */
+        #loader-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: #020408;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 1s ease-out;
+        }
+        .loader-content {
+            text-align: center;
+            font-family: 'Outfit', sans-serif;
+            color: #4fc3f7;
+            text-transform: uppercase;
+            letter-spacing: 6px;
+            font-weight: 900;
+            text-shadow: 0 0 15px rgba(79, 195, 247, 0.5);
+        }
+        .loader-bar-container {
+            width: 250px;
+            height: 1px;
+            background: rgba(79, 195, 247, 0.1);
+            margin-top: 25px;
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        .loader-bar-fill {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            width: 0%;
+            background: #4fc3f7;
+            box-shadow: 0 0 15px #4fc3f7;
+            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .loader-subtitle {
+            margin-top: 15px;
+            font-size: 10px;
+            opacity: 0.6;
+            letter-spacing: 2px;
+        }
+
+        /* ===== GOOGLE MAPS STYLE CONTROLS ===== */
+        
+        /* Base button style */
+        .gmaps-btn {
+            background: white;
+            border: none;
+            border-radius: 2px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            cursor: pointer;
+            padding: 0;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+        
+        .gmaps-btn:hover {
+            background: #f5f5f5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+        
+        .gmaps-btn:active {
+            background: #e8e8e8;
+        }
+
+        /* Zoom Controls (Bottom Right) */
+        .gmaps-zoom-controls {
+            position: absolute;
+            bottom: 120px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            border-radius: 2px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .gmaps-zoom-in,
+        .gmaps-zoom-out {
+            width: 40px;
+            height: 40px;
+            border-radius: 0;
+        }
+        
+        .gmaps-divider {
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        /* Compass (Top Right) */
+        .gmaps-compass {
+            position: absolute;
+            top: 90px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 2px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 1000;
+            transition: all 0.2s;
+        }
+        
+        .gmaps-compass:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+        
+        .gmaps-compass-inner {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .gmaps-compass-n {
+            position: absolute;
+            top: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+        
+        .gmaps-compass-needle {
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-bottom: 16px solid #d32f2f;
+            position: absolute;
+            transform-origin: center 12px;
+            transition: transform 0.3s ease;
+        }
+
+        /* Hamburger Menu (Top Left) */
+        .gmaps-hamburger {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        
+        .gmaps-hamburger-btn {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .gmaps-hamburger-menu {
+            position: absolute;
+            top: 50px;
+            left: 0;
+            background: white;
+            border-radius: 2px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            min-width: 280px;
+            overflow: hidden;
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.2s;
+        }
+        
+        .gmaps-hamburger-menu.hidden {
+            opacity: 0;
+            transform: translateY(-10px);
+            pointer-events: none;
+        }
+        
+        .gmaps-menu-header {
+            padding: 16px;
+            background: #f8f8f8;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .gmaps-menu-title {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .gmaps-menu-divider {
+            height: 1px;
+            background: #e0e0e0;
+            margin: 8px 0;
+        }
+        
+        .gmaps-menu-section {
+            padding: 8px 0;
+        }
+        
+        .gmaps-menu-subtitle {
+            padding: 8px 16px 4px;
+            font-size: 11px;
+            font-weight: 500;
+            color: #666;
+            letter-spacing: 0.5px;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .gmaps-menu-option {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .gmaps-menu-option:hover {
+            background: #f5f5f5;
+        }
+        
+        .gmaps-menu-icon {
+            font-size: 18px;
+            width: 24px;
+            text-align: center;
+        }
+        
+        .gmaps-menu-text {
+            font-size: 14px;
+            color: #333;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Stall Info Sidebar (Google Maps Style) */
+        .stall-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 380px;
+            height: 100vh;
+            background: white;
+            box-shadow: 2px 0 8px rgba(0,0,0,0.3);
+            z-index: 2000;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .stall-sidebar.active {
+            transform: translateX(0);
+        }
+        
+        .sidebar-header {
+            padding: 16px;
+            display: flex;
+            justify-content: flex-end;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .sidebar-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+            padding: 8px;
+            transition: color 0.2s;
+        }
+        
+        .sidebar-close:hover {
+            color: #333;
+        }
+        
+        .sidebar-content {
+            padding: 24px;
+        }
+        
+        .sidebar-title {
+            font-size: 24px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 8px;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .sidebar-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-bottom: 24px;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .sidebar-section {
+            margin-top: 24px;
+        }
+        
+        .sidebar-info-row {
+            display: flex;
+            gap: 16px;
+            padding: 16px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .sidebar-info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .sidebar-icon {
+            font-size: 24px;
+            width: 32px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        
+        .sidebar-text {
+            flex: 1;
+        }
+        
+        .sidebar-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .sidebar-value {
+            font-size: 14px;
+            color: #333;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Hide old popup */
+        .stall-popup {
+            display: none !important;
+        }
+
+        /* Camera Toggle (Left Side) */
+        .gmaps-camera-toggle {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+        }
+        
+        .gmaps-camera-toggle .gmaps-btn {
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+        }
+
+        /* Home Button (Bottom Left) */
+        .gmaps-home-btn {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+        }
+        
+        .gmaps-home-btn .gmaps-btn {
+            width: 40px;
+            height: 40px;
+        }
+
+        /* Stats Card (Bottom Left, above home) */
+        .gmaps-stats-card {
+            position: absolute;
+            bottom: 75px;
+            left: 20px;
+            background: white;
+            border-radius: 2px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+            padding: 12px 16px;
+            z-index: 1000;
+            min-width: 150px;
+        }
+        
+        .gmaps-stats-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .gmaps-stats-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            font-family: 'Roboto', sans-serif;
+        }
+
+        /* Hide old bottom-bar */
+        #bottom-bar {
+            display: none;
+        }
     </style>
 </head>
 
 <body>
-    <!-- Loading Screen -->
-    <div id="loadingScreen" class="loading-screen">
-        <div class="loading-spinner"></div>
-        <p class="loading-text">Cargando mapa 3D...</p>
+    <!-- Sci-Fi Loader Overlay -->
+    <div id="loader-overlay">
+        <div class="loader-content">
+            CARGANDO MAPA
+            <div class="loader-bar-container">
+                <div class="loader-bar-fill" id="loaderFill"></div>
+            </div>
+            <div class="loader-subtitle">ABRIENDO TIENDAS</div>
+        </div>
     </div>
 
-    <!-- Header -->
-    <header class="map-header">
-        <div class="map-title">
-            <span>🗺️</span>
-            <span>Feria 16 de Julio</span>
-        </div>
-        <a href="index.html" class="back-btn">← Volver</a>
-    </header>
+    <div class="dot-cursor" id="dotCursor"></div>
+
+    <div id="tag-tooltip"></div>
 
     <!-- Info Panel -->
     <div class="info-panel">
@@ -433,6 +1098,43 @@
         </div>
     </div>
 
+    <!-- Stall Info Sidebar (Google Maps Style) -->
+    <div id="stallSidebar" class="stall-sidebar">
+        <div class="sidebar-header">
+            <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+        </div>
+        <div class="sidebar-content">
+            <div id="sidebarTitle" class="sidebar-title">Nombre del Puesto</div>
+            <div id="sidebarTag" class="sidebar-tag">Categoría</div>
+            
+            <div class="sidebar-section">
+                <div class="sidebar-info-row">
+                    <div class="sidebar-icon">📍</div>
+                    <div class="sidebar-text">
+                        <div class="sidebar-label">Dirección</div>
+                        <div id="sidebarAddr" class="sidebar-value">Calle Principal, Sector A-12</div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-info-row">
+                    <div class="sidebar-icon">⏰</div>
+                    <div class="sidebar-text">
+                        <div class="sidebar-label">Horario</div>
+                        <div id="sidebarHours" class="sidebar-value">08:00 - 18:00 (Jue/Dom)</div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-info-row">
+                    <div class="sidebar-icon">🛍️</div>
+                    <div class="sidebar-text">
+                        <div class="sidebar-label">Productos</div>
+                        <div id="sidebarProducts" class="sidebar-value">Electrónica, Accesorios, Herramientas</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Controls Panel -->
     <div class="controls-panel">
         <div class="control-item">
@@ -440,8 +1142,8 @@
             <span>Arrastra para mover</span>
         </div>
         <div class="control-item">
-            <div class="control-icon">🔄</div>
-            <span>Shift + Arrastra para rotar (3D)</span>
+            <div class="control-icon">⌨️</div>
+            <span>WASD para mover</span>
         </div>
         <div class="control-item">
             <div class="control-icon">🔍</div>
@@ -453,27 +1155,84 @@
         </div>
     </div>
 
-    <!-- Camera Controls -->
-    <div class="camera-controls">
-        <button id="isometricBtn" class="camera-btn active" onclick="setCameraMode('isometric')">
-            📐 Isométrica
+    <!-- Google Maps Style Controls -->
+    
+    <!-- Zoom Controls (Bottom Right) -->
+    <div class="gmaps-zoom-controls">
+        <button class="gmaps-btn gmaps-zoom-in" onclick="adjustZoom(0.2)" title="Acercar (+)">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+                <path d="M9 3v12M3 9h12" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
         </button>
-        <button id="freeBtn" class="camera-btn" onclick="setCameraMode('free')">
-            🎮 Libre 3D
+        <div class="gmaps-divider"></div>
+        <button class="gmaps-btn gmaps-zoom-out" onclick="adjustZoom(-0.2)" title="Alejar (-)">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+                <path d="M3 9h12" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
         </button>
     </div>
 
-    <!-- Compass -->
-    <div class="compass-container">
-        <div class="compass" onclick="resetCameraRotation()" title="Clic para resetear orientación">
-            <div class="compass-label n">N</div>
-            <div class="compass-label s">S</div>
-            <div class="compass-label e">E</div>
-            <div class="compass-label w">O</div>
-            <div id="compassNeedle" class="compass-needle"></div>
-            <div class="compass-center"></div>
+    <!-- Compass (Top Right) -->
+    <div class="gmaps-compass" onclick="resetCameraRotation()" title="Resetear orientación">
+        <div class="gmaps-compass-inner">
+            <div class="gmaps-compass-n">N</div>
+            <div id="compassNeedle" class="gmaps-compass-needle"></div>
         </div>
     </div>
+
+    <!-- Hamburger Menu (Top Left) -->
+    <div class="gmaps-hamburger">
+        <button class="gmaps-btn gmaps-hamburger-btn" onclick="toggleHamburgerMenu()" title="Menú">
+            <svg width="20" height="20" viewBox="0 0 20 20">
+                <path d="M2 4h16M2 10h16M2 16h16" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+        </button>
+        <div id="hamburgerMenu" class="gmaps-hamburger-menu hidden">
+            <div class="gmaps-menu-header">
+                <span class="gmaps-menu-title">🗺️ Feria 16 de Julio</span>
+            </div>
+            <div class="gmaps-menu-divider"></div>
+            <div class="gmaps-menu-section">
+                <div class="gmaps-menu-subtitle">CAPAS</div>
+                <div class="gmaps-menu-option" onclick="setOverlay('normal'); toggleHamburgerMenu();">
+                    <span class="gmaps-menu-icon">🌈</span>
+                    <span class="gmaps-menu-text">Vista Completa</span>
+                </div>
+                <div class="gmaps-menu-option" onclick="setOverlay('terreno'); toggleHamburgerMenu();">
+                    <span class="gmaps-menu-icon">🟫</span>
+                    <span class="gmaps-menu-text">Solo Suelo</span>
+                </div>
+                <div class="gmaps-menu-option" onclick="setOverlay('estructura'); toggleHamburgerMenu();">
+                    <span class="gmaps-menu-icon">🏢</span>
+                    <span class="gmaps-menu-text">Solo Estructuras</span>
+                </div>
+            </div>
+            <div class="gmaps-menu-divider"></div>
+            <div class="gmaps-menu-section">
+                <div class="gmaps-menu-option" onclick="window.location.href='index.html'">
+                    <span class="gmaps-menu-icon">←</span>
+                    <span class="gmaps-menu-text">Volver al Inicio</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera Mode Toggle (Left Side) -->
+    <div class="gmaps-camera-toggle">
+        <button id="btn-cam-toggle" class="gmaps-btn" onclick="toggleCameraMode()" title="Cambiar vista">
+            <span id="camIcon">📐</span>
+        </button>
+    </div>
+
+
+
+    <!-- Stats Card (Bottom Left, above home) -->
+    <div class="gmaps-stats-card">
+        <div class="gmaps-stats-label">Puestos en el mapa</div>
+        <div class="gmaps-stats-value" id="stallCount">0</div>
+    </div>
+
+
 
     <!-- Welcome Message -->
     <div id="welcomeMessage" class="welcome-message">
@@ -482,7 +1241,7 @@
             Explora la Feria 16 de Julio en 3D. Usa el mouse para navegar y descubrir todos los puestos.
             <br><br>
             <strong>Nuevos controles:</strong><br>
-            • Cambia entre vista isométrica y libre<br>
+            • Cambia entre vista isométrica y cenital<br>
             • Usa la brújula para orientarte<br>
             • Clic en la brújula para resetear
         </p>
@@ -491,32 +1250,95 @@
 
     <!-- Data Manager Script -->
     <script src="data-manager.js"></script>
+    <script src="lighting-config.js"></script>
 
     <script type="importmap">
         {
             "imports": {
-                "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js"
+                "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
             }
         }
     </script>
 
     <script>
         function closeWelcome() {
-            document.getElementById('welcomeMessage').classList.add('hidden');
+            const welcomeMsg = document.getElementById('welcomeMessage');
+            if (welcomeMsg) welcomeMsg.classList.add('hidden');
         }
+        
+        function closeSidebar() {
+            const sidebar = document.getElementById('stallSidebar');
+            if (sidebar) sidebar.classList.remove('active');
+            if (window.selectionHighlight) window.selectionHighlight.visible = false;
+        }
+
+        // Google Maps Style Controls
+        function toggleHamburgerMenu() {
+            const menu = document.getElementById('hamburgerMenu');
+            if (menu) menu.classList.toggle('hidden');
+        }
+
+        // Close hamburger menu when clicking outside
+        document.addEventListener('click', (e) => {
+            const hamburgerBtn = document.querySelector('.gmaps-hamburger-btn');
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            if (hamburgerMenu && hamburgerBtn && !hamburgerBtn.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+                hamburgerMenu.classList.add('hidden');
+            }
+        });
+
+        let currentCameraMode = 'isometric';
+        function toggleCameraMode() {
+            currentCameraMode = currentCameraMode === 'isometric' ? 'zenith' : 'isometric';
+            const icon = document.getElementById('camIcon');
+            if (icon) icon.textContent = currentCameraMode === 'isometric' ? '📐' : '🔝';
+            if (window.setCameraMode) window.setCameraMode(currentCameraMode);
+        }
+
+        function adjustZoom(delta) {
+            if (window.currentCamera) {
+                window.currentCamera.zoom = Math.max(0.2, Math.min(10, window.currentCamera.zoom + delta));
+                window.currentCamera.updateProjectionMatrix();
+                
+                const zoomLevel = document.getElementById('zoomLevel');
+                if (zoomLevel) zoomLevel.textContent = window.currentCamera.zoom.toFixed(1) + 'x';
+            }
+        }
+
+        // Keyboard shortcuts for zoom
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '+' || e.key === '=') adjustZoom(0.2);
+            if (e.key === '-' || e.key === '_') adjustZoom(-0.2);
+        });
     </script>
 
     <script type="module">
         import * as THREE from 'three';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { db, collection, getDocs } from './firebase-bridge.js';
 
-        // Hide loading screen after a moment
-        setTimeout(() => {
-            document.getElementById('loadingScreen').classList.add('hidden');
-        }, 1500);
+        const gltfLoader = new GLTFLoader();
+        const modelCache = {};
+        
+        // Global for selection highlight
+        window.selectionHighlight = null;
 
-        // --- Scene Setup ---
+
+
+        // Scene & Uniform Background
         const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87CEEB); // Sky blue
+        scene.background = new THREE.Color(0xecf8ff); // Celeste aún más suave y claro
+        scene.fog = new THREE.Fog(0xecf8ff, 100, 400); // Niebla más lejana para no ocultar edificios pronto
+        
+
+        // Setup centralized lighting
+        LightingConfig.init(THREE, scene, 'viewer');
+            
+        // Hide loading screen
+        const loadingScreen = document.getElementById('loadingScreen');
+        if (loadingScreen) loadingScreen.classList.add('hidden');
 
         // Camera System
         const aspect = window.innerWidth / window.innerHeight;
@@ -532,41 +1354,34 @@
         perspCamera.position.set(0, 30, 30);
         perspCamera.lookAt(0, 0, 0);
 
-        // Active camera (start with orthographic)
+        // Active camera
         let camera = orthoCamera;
+        window.currentCamera = camera; // Expose for zoom controls
         let cameraMode = 'isometric';
-        let cameraRotationY = 0; // Track camera rotation for compass
+        const pivotPoint = new THREE.Vector3(0, 0, 0); // Point the camera looks at
+        const viewOffset = new THREE.Vector3(20, 20, 20); // Relative position to pivot
 
         // Camera control functions
         window.setCameraMode = (mode) => {
             cameraMode = mode;
+            // Old bottom-bar buttons removed, camera mode now controlled by toggle button
 
             if (mode === 'isometric') {
-                camera = orthoCamera;
-                document.getElementById('isometricBtn').classList.add('active');
-                document.getElementById('freeBtn').classList.remove('active');
+                viewOffset.set(20, 20, 20);
+                camera.up.set(0, 1, 0);
             } else {
-                camera = perspCamera;
-                document.getElementById('freeBtn').classList.add('active');
-                document.getElementById('isometricBtn').classList.remove('active');
+                // High-angle "Zelda" Zenith: Top down but with a slight 15-deg tilt for depth
+                viewOffset.set(0, 35, 12); 
+                camera.up.set(0, 1, 0); // Standard Up vector
             }
-
-            // Update camera aspect on switch
-            if (camera.isPerspectiveCamera) {
-                camera.aspect = aspect;
-                camera.updateProjectionMatrix();
-            } else {
-                camera.left = -d * aspect;
-                camera.right = d * aspect;
-                camera.updateProjectionMatrix();
-            }
+            
+            camera.position.copy(pivotPoint).add(viewOffset);
+            camera.lookAt(pivotPoint);
+            camera.updateProjectionMatrix();
         };
 
         window.resetCameraRotation = () => {
-            cameraRotationY = 0;
-            camera.position.set(camera === orthoCamera ? 0 : 0, camera.position.y, camera === orthoCamera ? 15 : 30);
-            camera.lookAt(0, 0, 0);
-            updateCompass();
+             // Disabled as rotation is locked
         };
 
         // Update compass needle
@@ -580,92 +1395,423 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
         document.body.appendChild(renderer.domElement);
 
-        // --- Lighting ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
+        // Lighting already initialized via LightingConfig.init
 
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(10, 30, 10);
-        dirLight.castShadow = true;
-        dirLight.shadow.camera.left = -50;
-        dirLight.shadow.camera.right = 50;
-        dirLight.shadow.camera.top = 50;
-        dirLight.shadow.camera.bottom = -50;
-        scene.add(dirLight);
+        // Point light removed to avoid visible "blobs" on mate floor
 
-        // --- Ground ---
+        const spotLight = new THREE.SpotLight(0xffaa77, 10);
+        spotLight.position.set(-5, 2, 5);
+        spotLight.angle = 0.6283185307179586;
+        spotLight.penumbra = 0.5;
+        spotLight.castShadow = true;
+        scene.add(spotLight);
+
+        // Environment (HDRI) Intensity
+        scene.environmentIntensity = 1.3; // Make HDRI reflections pop
+
+        // --- Keyboard State ---
+        const keys = {};
+        window.addEventListener('keydown', (e) => {
+            keys[e.code] = true;
+            if(e.code === 'KeyQ') setCameraMode(cameraMode === 'zenith' ? 'isometric' : 'zenith');
+            if(e.code === 'Digit1') setOverlay('normal');
+            if(e.code === 'Digit2') setOverlay('terreno');
+            if(e.code === 'Digit3') setOverlay('estructura');
+        });
+        window.addEventListener('keyup', (e) => keys[e.code] = false);
+
+        // Renderer adjustments
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 0.85; // Slightly lower for more contrast
+
+        // Ground Canvas for "Texture Painting"
         const gridSize = 100;
+        const terrainCanvas = document.createElement('canvas');
+        terrainCanvas.width = 1024;
+        terrainCanvas.height = 1024;
+        const terrainCtx = terrainCanvas.getContext('2d');
+        const terrainTexture = new THREE.CanvasTexture(terrainCanvas);
+        terrainTexture.magFilter = THREE.LinearFilter;
+        terrainTexture.minFilter = THREE.LinearFilter;
 
-        // Ground plane with texture
+        function updateTerrain() {
+            // 1. Clear with base asphalt color
+            terrainCtx.fillStyle = '#646464';
+            terrainCtx.fillRect(0, 0, terrainCanvas.width, terrainCanvas.height);
+            
+            const scale = terrainCanvas.width / gridSize;
+            
+            // Pass 1: Terrain Blocks (Grass, Concrete, etc.)
+            mapData.forEach(data => {
+                const asset = Object.values(AssetTypes).find(a => a.id === data.assetType);
+                if (asset && asset.category === 'terreno') {
+                    terrainCtx.fillStyle = `#${asset.color.toString(16).padStart(6, '0')}`;
+                    const x = (data.x + gridSize/2 - asset.gridSize.width/2) * scale;
+                    const z = (data.z + gridSize/2 - asset.gridSize.depth/2) * scale;
+                    terrainCtx.fillRect(x, z, asset.gridSize.width * scale, asset.gridSize.depth * scale);
+                }
+            });
+
+            // Pass 2: Road Decorations (Text and Arrows)
+            mapData.forEach(data => {
+                const asset = Object.values(AssetTypes).find(a => a.id === data.assetType);
+                if (!asset || !asset.isDecoration) return;
+
+                const x = (data.x + gridSize/2) * scale;
+                const z = (data.z + gridSize/2) * scale;
+
+                const rot = data.rotation || 0;
+                const w = (data.width || asset.size.width) * scale;
+                const d = (data.depth || asset.size.depth) * scale;
+
+                // Decoraciones eliminadas por el momento
+            });
+
+            terrainTexture.needsUpdate = true;
+        }
+
+        // Ground plane
         const groundGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
         const groundMaterial = new THREE.MeshStandardMaterial({
-            color: 0xE8DCC4,
-            roughness: 0.8
+            map: terrainTexture,
+            roughness: 0.8,
+            metalness: 0.1
         });
         const ground = new THREE.Mesh(groundGeometry, groundMaterial);
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
+        groundMaterial.roughness = 1.0; // Totalmente mate
+        groundMaterial.metalness = 0.0; // Sin reflejos metálicos
         scene.add(ground);
 
-        // Grid
-        const gridHelper = new THREE.GridHelper(gridSize, gridSize, 0xCCBBAA, 0xDDCCBB);
-        gridHelper.position.y = 0.01;
-        scene.add(gridHelper);
+        // Grid (Hidden in viewer)
+        // const gridHelper = new THREE.GridHelper(gridSize, gridSize, 0x555555, 0x333333);
+        // gridHelper.position.y = 0.01;
+        // scene.add(gridHelper);
 
-        // --- Load Map Data from LocalStorage ---
-        let mapData = DataManager.load();
+        // --- Load Map Data (Cloud first, then Local) ---
+        let mapData = await DataManager.loadFromCloud(db);
+        if (!mapData || mapData.length === 0) {
+            console.log('ℹ️ No hay datos en Cloud o hubo error, intentando LocalStorage');
+            mapData = DataManager.load();
+        }
 
-        // If no data exists, use demo data
+        // If still no data exists, use demo data
         if (mapData.length === 0) {
             console.log('ℹ️ No hay datos guardados, usando datos de demostración');
             mapData = [
-                { x: 0.5, z: 0.5, color: 0xFF6B35, assetType: 'puesto_pequeno' },
-                { x: 2.5, z: 0.5, color: 0x3BCEAC, assetType: 'puesto_pequeno' },
-                { x: 4.5, z: 0.5, color: 0xFFD23F, assetType: 'puesto_pequeno' },
-                { x: 0.5, z: 2.5, color: 0x9B59B6, assetType: 'puesto_mediano' },
-                { x: 2.5, z: 2.5, color: 0xE74C3C, assetType: 'puesto_mediano' },
-                { x: 4.5, z: 2.5, color: 0x2ECC71, assetType: 'puesto_grande' },
+                { x: 0.5, z: 0.5, color: 0xFF6B35, assetType: 's_1x1' },
+                { x: 2.5, z: 0.5, color: 0x3BCEAC, assetType: 's_2x2' },
+                { x: 4.5, z: 0.5, color: 0xFFD23F, assetType: 's_3x3' },
+                { x: 0.5, z: 3.5, color: 0x9B59B6, assetType: 's_2x4' },
+                { x: 4.5, z: 4.5, color: 0xE74C3C, assetType: 's_6x3' },
+                { x: 10.5, z: 2.5, color: 0x2ECC71, assetType: 's_4x4' },
             ];
         }
 
         const stallObjects = [];
-
-        // Create stalls from data
+        const instanceGroups = {};
+        const allInstancedMeshes = [];
+        
+        // Group all buildings for instancing (Ignoring individual GLB clones for performance)
         mapData.forEach(data => {
-            // Get asset type or use default
-            const assetType = Object.values(AssetTypes).find(a => a.id === data.assetType) || AssetTypes.PUESTO_PEQUENO;
-            const size = assetType.size;
-
-            const geometry = new THREE.BoxGeometry(size.width, size.height, size.depth);
-            const material = new THREE.MeshStandardMaterial({
-                color: data.color,
-                roughness: 0.7,
-                metalness: 0.2
-            });
-            const mesh = new THREE.Mesh(geometry, material);
-            mesh.position.set(data.x, size.height / 2, data.z);
-            mesh.castShadow = true;
-            mesh.receiveShadow = true;
-
-            // Add a little roof
-            const roofGeometry = new THREE.ConeGeometry(Math.max(size.width, size.depth) * 0.6, size.height * 0.4, 4);
-            const roofMaterial = new THREE.MeshStandardMaterial({
-                color: 0xFFFFFF,
-                roughness: 0.8
-            });
-            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-            roof.position.y = size.height * 0.7;
-            roof.rotation.y = Math.PI / 4;
-            mesh.add(roof);
-
-            scene.add(mesh);
-            stallObjects.push(mesh);
+            const assetType = Object.values(AssetTypes).find(a => a.id === data.assetType) || AssetTypes.S_1X1;
+            if (assetType.category === 'terreno') return;
+            
+            if (!instanceGroups[data.assetType]) {
+                instanceGroups[data.assetType] = {
+                    type: assetType,
+                    dataItems: []
+                };
+            }
+            instanceGroups[data.assetType].dataItems.push(data);
         });
 
+        // Shared materials (Optimization: Material Sharing)
+        const roofMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.8 });
+        const foundationMat = new THREE.MeshStandardMaterial({ color: 0x999999 });
+
+        // Create 3 Universal Instanced Meshes (The "3 Draw Calls" Holy Grail)
+        const totalBuildings = mapData.filter(d => {
+            const assetType = Object.values(AssetTypes).find(a => a.id === d.assetType);
+            return assetType && assetType.category !== 'terreno';
+        }).length;
+
+        // 1. Universal Body (Unit Box)
+        const unitBodyGeo = new THREE.BoxGeometry(1, 1, 1);
+        const bodyMat = new THREE.MeshStandardMaterial({ roughness: 0.2, metalness: 0.1 });
+        const universalBody = new THREE.InstancedMesh(unitBodyGeo, bodyMat, totalBuildings);
+        universalBody.castShadow = true;
+        universalBody.receiveShadow = true;
+
+        // 2. Universal Roof (Unit Cone)
+        const unitRoofGeo = new THREE.ConeGeometry(0.7071, 0.4, 4);
+        unitRoofGeo.rotateY(Math.PI / 4);
+        const universalRoof = new THREE.InstancedMesh(unitRoofGeo, roofMat, totalBuildings);
+        universalRoof.castShadow = true;
+
+        // 3. Universal Foundation (Unit Box)
+        const unitBaseGeo = new THREE.BoxGeometry(1, 1, 1);
+        const universalFoundation = new THREE.InstancedMesh(unitBaseGeo, foundationMat, totalBuildings);
+        universalFoundation.receiveShadow = true;
+
+        // Metadata for layer management
+        universalBody.userData.category = 'estructura';
+        universalRoof.userData.category = 'estructura';
+        universalFoundation.userData.category = 'estructura';
+
+        const dummy = new THREE.Object3D();
+        const colorObj = new THREE.Color();
+        let idx = 0;
+
+        // Matrix to Object mapping for ultra-fast interaction
+        universalBody.instanceData = [];
+
+        mapData.forEach(data => {
+            const type = Object.values(AssetTypes).find(a => a.id === data.assetType);
+            if (!type || type.category === 'terreno') return;
+
+            const size = type.size;
+            const rot = (data.rotation || 0) * Math.PI / 180;
+            const yOffset = (data.layer || 1) * 0.005;
+
+            // Update Body Matrix (Scaled by its real size)
+            dummy.position.set(data.x, yOffset + size.height / 2, data.z);
+            dummy.rotation.set(0, rot, 0);
+            dummy.scale.set(size.width, size.height, size.depth);
+            dummy.updateMatrix();
+            universalBody.setMatrixAt(idx, dummy.matrix);
+            
+            colorObj.setHex(type.color);
+            universalBody.setColorAt(idx, colorObj);
+
+            // Update Roof Matrix
+            dummy.position.set(data.x, yOffset + size.height * 0.7, data.z);
+            dummy.rotation.set(0, rot, 0);
+            dummy.scale.set(size.width, 1, size.depth);
+            dummy.updateMatrix();
+            universalRoof.setMatrixAt(idx, dummy.matrix);
+
+            // Update Foundation Matrix
+            dummy.position.set(data.x, yOffset + 0.025, data.z);
+            dummy.rotation.set(0, rot, 0);
+            dummy.scale.set(size.width + 0.1, 0.05, size.depth + 0.1);
+            dummy.updateMatrix();
+            universalFoundation.setMatrixAt(idx, dummy.matrix);
+
+            universalBody.instanceData[idx] = data;
+            idx++;
+        });
+
+        scene.add(universalBody);
+        scene.add(universalRoof);
+        scene.add(universalFoundation);
+        stallObjects.push(universalBody);
+        allInstancedMeshes.push(universalBody, universalRoof, universalFoundation);
+
+        // Layer Overlays (Wireframe Logic)
+        window.currentOverlay = 'normal';
+        window.setOverlay = (m) => {
+            currentOverlay = m;
+            
+            // UI state
+            document.getElementById('btn-layer-normal').classList.toggle('active', m === 'normal');
+            document.getElementById('btn-layer-terreno').classList.toggle('active', m === 'terreno');
+            document.getElementById('btn-layer-estructura').classList.toggle('active', m === 'estructura');
+
+            allInstancedMeshes.forEach(mesh => {
+                const category = mesh.userData.category || (mesh.userData.typeId ? AssetTypes[mesh.userData.typeId].category : 'other');
+                const isMatch = (m === 'normal') || (category === m);
+                
+                if (!mesh.userData.originalMat) mesh.userData.originalMat = mesh.material;
+                
+                if (isMatch) {
+                    mesh.material = mesh.userData.originalMat;
+                    mesh.material.wireframe = false;
+                    mesh.material.opacity = 1.0;
+                    mesh.material.transparent = false;
+                } else {
+                    if (!mesh.userData.wireframeMat) {
+                        mesh.userData.wireframeMat = mesh.userData.originalMat.clone();
+                        mesh.userData.wireframeMat.wireframe = true;
+                        mesh.userData.wireframeMat.transparent = true;
+                        mesh.userData.wireframeMat.opacity = 0.1;
+                    }
+                    mesh.material = mesh.userData.wireframeMat;
+                }
+            });
+
+            // Terrain plane
+            if (collisionPlane) {
+                 collisionPlane.material.opacity = (m === 'normal' || m === 'terreno') ? 1.0 : 0.1;
+            }
+        };
+
+        // Initialize selection highlight (Building a thick wireframe with meshes anchored at bottom)
+        function createThickWireframe(w, h, d, thickness = 1) {
+            const group = new THREE.Group();
+            const mat = new THREE.MeshBasicMaterial({ color: 0xFF8C00, transparent: true, opacity: 1 }); // Orange
+            
+            const createBar = (bw, bh, bd, x, y, z) => {
+                const geo = new THREE.BoxGeometry(bw, bh, bd);
+                const mesh = new THREE.Mesh(geo, mat);
+                mesh.position.set(x, y, z);
+                group.add(mesh);
+            };
+
+            // Calculate vertical center based on thickness for floor anchor
+            const halfTh = thickness / 2;
+
+            // 12 edges (Grounded)
+            // Bottom 4 (Lifted by half thickness so they sit on Y=0)
+            createBar(w + thickness, thickness, thickness, 0, halfTh, d/2);
+            createBar(w + thickness, thickness, thickness, 0, halfTh, -d/2);
+            createBar(thickness, thickness, d + thickness, w/2, halfTh, 0);
+            createBar(thickness, thickness, d + thickness, -w/2, halfTh, 0);
+            
+            // Top 4 (At full height)
+            createBar(w + thickness, thickness, thickness, 0, h - halfTh, d/2);
+            createBar(w + thickness, thickness, thickness, 0, h - halfTh, -d/2);
+            createBar(thickness, thickness, d + thickness, w/2, h - halfTh, 0);
+            createBar(thickness, thickness, d + thickness, -w/2, h - halfTh, 0);
+            
+            // Vertical 4 (From 0 to h)
+            createBar(thickness, h, thickness, w/2, h/2, d/2);
+            createBar(thickness, h, thickness, -w/2, h/2, d/2);
+            createBar(thickness, h, thickness, w/2, h/2, -d/2);
+            createBar(thickness, h, thickness, -w/2, h/2, -d/2);
+
+            return group;
+        }
+
+        // Global highlight group
+        window.selectionHighlight = new THREE.Group();
+        scene.add(window.selectionHighlight);
+        
+        // --- Cyber Scan Loader Effect (Styled based on image) ---
+        const loaderContainer = new THREE.Group();
+        scene.add(loaderContainer);
+
+        function initCyberLoader() {
+            // 1. Grid of Crosses (The 3D Grid in your image)
+            const gridSize = 30;
+            const totalCrosses = gridSize * gridSize;
+            const crossGeo = new THREE.PlaneGeometry(0.2, 0.2);
+            const crossMat = new THREE.MeshBasicMaterial({ 
+                color: 0x8145e6, 
+                transparent: true, 
+                opacity: 0.3,
+                side: THREE.DoubleSide
+            });
+            const crossMesh = new THREE.InstancedMesh(crossGeo, crossMat, totalCrosses);
+            
+            let i = 0;
+            const dummy = new THREE.Object3D();
+            for(let x = -gridSize/2; x < gridSize/2; x++) {
+                for(let z = -gridSize/2; z < gridSize/2; z++) {
+                    dummy.position.set(x * 1.5, 0.01, z * 1.5);
+                    dummy.rotation.x = -Math.PI / 2;
+                    dummy.updateMatrix();
+                    crossMesh.setMatrixAt(i++, dummy.matrix);
+                }
+            }
+            loaderContainer.add(crossMesh);
+
+            // 2. Glowing Pulse Ring
+            const ringGeo = new THREE.TorusGeometry(8, 0.03, 16, 100);
+            ringGeo.rotateX(Math.PI / 2);
+            const ringMat = new THREE.MeshBasicMaterial({ color: 0x4fc3f7 });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            
+            const ringGlow = new THREE.Mesh(
+                new THREE.TorusGeometry(8, 0.1, 16, 100),
+                new THREE.MeshBasicMaterial({ color: 0x4fc3f7, transparent: true, opacity: 0.2 })
+            );
+            ringGlow.rotateX(Math.PI / 2);
+            
+            loaderContainer.add(ring);
+            loaderContainer.add(ringGlow);
+
+            let startTime = Date.now();
+            function animateLoader() {
+                if (!loaderContainer.visible) return;
+                const time = (Date.now() - startTime) * 0.001;
+                
+                // Ring animation
+                const s = 1 + Math.sin(time * 2) * 0.1;
+                ring.scale.set(s, 1, s);
+                ringGlow.scale.set(s, 1, s);
+                ringGlow.material.opacity = 0.15 + Math.sin(time * 4) * 0.1;
+
+                requestAnimationFrame(animateLoader);
+            }
+            animateLoader();
+
+            // Hide loader after a small delay (Simulating loading time)
+            setTimeout(() => {
+                const loader = document.getElementById('loader-overlay');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                        loaderContainer.visible = false;
+                    }, 1000);
+                }
+            }, 2500);
+        }
+        initCyberLoader();
+
+        // --- Hover Cursor (Highlighted Square with Dotted Stroke) ---
+        let hoverCursor;
+        function initHoverCursor() {
+            hoverCursor = new THREE.Group();
+            
+            // 1. Fill Plane
+            const fillGeo = new THREE.PlaneGeometry(0.98, 0.98);
+            fillGeo.rotateX(-Math.PI / 2);
+            const fillMat = new THREE.MeshBasicMaterial({ 
+                color: 0x000000, 
+                transparent: true, 
+                opacity: 0.1,
+                depthWrite: false 
+            });
+            const fill = new THREE.Mesh(fillGeo, fillMat);
+            hoverCursor.add(fill);
+
+            // 2. Stroke (Dotted/Dashed Outline)
+            const strokeGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(1, 1));
+            strokeGeo.rotateX(-Math.PI / 2);
+            const strokeMat = new THREE.LineDashedMaterial({ 
+                color: 0x000000, 
+                dashSize: 0.1,
+                gapSize: 0.05,
+                transparent: true, 
+                opacity: 0.8
+            });
+            const stroke = new THREE.LineSegments(strokeGeo, strokeMat);
+            stroke.computeLineDistances(); // Required for dashed lines
+            hoverCursor.add(stroke);
+
+            hoverCursor.position.y = 0.02; 
+            hoverCursor.visible = false;
+            scene.add(hoverCursor);
+        }
+        initHoverCursor();
+        
+        updateTerrain(); // Pintar el suelo basado en data cargada
+
         // Update stall count
-        document.getElementById('stallCount').textContent = mapData.length;
+        const structureCount = mapData.filter(d => {
+            const asset = Object.values(AssetTypes).find(a => a.id === d.assetType);
+            return asset && asset.category !== 'terreno';
+        }).length;
+        document.getElementById('stallCount').textContent = structureCount;
 
         // --- Interaction ---
         const raycaster = new THREE.Raycaster();
@@ -673,63 +1819,190 @@
         let isMouseDown = false;
         let prevMousePos = { x: 0, y: 0 };
 
+        const dotCursor = document.getElementById('dotCursor');
+        const tooltip = document.getElementById('tag-tooltip');
+
         const onMouseMove = (event) => {
+            // Move custom cursor using high-perf transform
+            const offset = isMouseDown ? 20 : 10;
+            dotCursor.style.transform = `translate3d(${event.clientX - offset}px, ${event.clientY - offset}px, 0)`;
+            dotCursor.style.display = 'flex';
+
             mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
             mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-            if (isMouseDown) {
+            if (isMouseDown || isMiddleDown) {
                 const deltaX = event.clientX - prevMousePos.x;
                 const deltaY = event.clientY - prevMousePos.y;
-
-                // Shift key for rotation (only in free mode)
-                if (event.shiftKey && cameraMode === 'free') {
-                    // Rotate camera around center
-                    cameraRotationY += deltaX * 0.01;
-
-                    const radius = Math.sqrt(camera.position.x ** 2 + camera.position.z ** 2);
-                    camera.position.x = radius * Math.sin(cameraRotationY);
-                    camera.position.z = radius * Math.cos(cameraRotationY);
-                    camera.lookAt(0, 0, 0);
-
-                    updateCompass();
-                } else {
-                    // Pan camera
-                    const scale = camera.isOrthographicCamera
-                        ? (d * 2) / (window.innerHeight * camera.zoom)
-                        : camera.position.y * 0.001;
-
-                    camera.position.x -= deltaX * scale;
-                    camera.position.z -= deltaY * scale;
-                }
-
+                const scale = (d * 2) / (window.innerHeight * camera.zoom);
+                pivotPoint.x -= deltaX * scale;
+                pivotPoint.z -= deltaY * scale;
                 prevMousePos = { x: event.clientX, y: event.clientY };
+                targetFocus = null;
+
+                // SKIP tooltip logic while dragging for performance
+                if (hoverCursor) hoverCursor.visible = false;
+                tooltip.style.display = 'none';
+                return;
+            }
+
+            // --- ONI Hover Detection & Snapping Cursor ---
+            raycaster.setFromCamera(mouse, camera);
+            
+            const terrainIntersect = raycaster.intersectObject(ground);
+            if (terrainIntersect.length > 0) {
+                const point = terrainIntersect[0].point;
+                const hits = raycaster.intersectObjects(stallObjects, true); 
+                
+                tooltip.style.display = 'block';
+                tooltip.style.left = (event.clientX + 20) + 'px';
+                tooltip.style.top = (event.clientY + 20) + 'px';
+
+                if (hits.length > 0) {
+                    const intersect = hits[0];
+                    let obj = intersect.object;
+                    while(obj && !obj.userData.mapData && (!obj.instanceData || intersect.instanceId === undefined)) {
+                        obj = obj.parent;
+                    }
+
+                    let data = null;
+                    if (obj) {
+                        data = obj.instanceData ? obj.instanceData[intersect.instanceId] : obj.userData.mapData;
+                    }
+                    
+                    if (data) {
+                        // Solo ocultamos el hover si estamos sobre el edificio YA seleccionado
+                        const isThisSelected = window.selectionHighlight.visible && 
+                                              Math.abs(window.selectionHighlight.position.x - data.x) < 0.1 && 
+                                              Math.abs(window.selectionHighlight.position.z - data.z) < 0.1;
+
+                        if (isThisSelected) {
+                            if (hoverCursor) hoverCursor.visible = false;
+                            tooltip.style.display = 'none';
+                        } else {
+                            const asset = Object.values(AssetTypes).find(a => a.id === data.assetType);
+                            tooltip.style.display = 'block';
+                            tooltip.innerHTML = `<div class="title" style="margin-bottom: 0;">${asset.name.replace(/^[^\s]+\s/, '')}</div>`;
+
+                            if (hoverCursor) {
+                                const isRotated = data.rotation === 90 || data.rotation === 270;
+                                const gw = isRotated ? asset.gridSize.depth : asset.gridSize.width;
+                                const gd = isRotated ? asset.gridSize.width : asset.gridSize.depth;
+                                hoverCursor.position.set(data.x, 0.05, data.z);
+                                hoverCursor.scale.set(gw, 1, gd);
+                                hoverCursor.visible = true;
+                            }
+                        }
+                    }
+                } else {
+                    // SIEMPRE mostramos el cuadrado hover en espacio vacío, incluso si hay algo seleccionado
+                    tooltip.style.display = 'none';
+                    const gx = Math.floor(point.x) + 0.5;
+                    const gz = Math.floor(point.z) + 0.5;
+                    
+                    if (hoverCursor) {
+                        hoverCursor.position.set(gx, 0.05, gz);
+                        hoverCursor.scale.set(1, 1, 1);
+                        hoverCursor.visible = true;
+                    }
+                }
+            } else {
+                if (hoverCursor) hoverCursor.visible = false;
+                tooltip.style.display = 'none';
             }
         };
 
+        let isMiddleDown = false;
         const onMouseDown = (event) => {
+            // UI Blocking
+            if (event.target.closest('#bottom-bar') || event.target.closest('.info-panel') || event.target.closest('.welcome-message') || event.target.closest('#stallPopup')) {
+                return;
+            }
+
             if (event.button === 0) {
                 isMouseDown = true;
                 prevMousePos = { x: event.clientX, y: event.clientY };
+                targetFocus = null;
+                document.getElementById('dotCursor').classList.add('grabbing');
+            } else if (event.button === 1) {
+                isMiddleDown = true;
+                prevMousePos = { x: event.clientX, y: event.clientY };
+                event.preventDefault();
             }
         };
 
-        const onMouseUp = () => {
-            isMouseDown = false;
+        const onMouseUp = (event) => {
+            if (event.button === 0) {
+                isMouseDown = false;
+                document.getElementById('dotCursor').classList.remove('grabbing');
+            }
+            if (event.button === 1) isMiddleDown = false;
         };
+
+        let targetFocus = null;
 
         const onClick = (event) => {
             raycaster.setFromCamera(mouse, camera);
             const intersects = raycaster.intersectObjects(stallObjects);
 
             if (intersects.length > 0) {
-                const obj = intersects[0].object;
-                // Animate click
-                obj.scale.set(1.1, 1.1, 1.1);
-                setTimeout(() => {
-                    obj.scale.set(1, 1, 1);
-                }, 200);
+                const intersect = intersects[0];
+                let obj = intersect.object;
+                
+                // Traverse up to find the building root with data
+                while(obj && !obj.userData.mapData && (!obj.instanceData || intersect.instanceId === undefined)) {
+                    obj = obj.parent;
+                }
 
-                console.log('Puesto clickeado:', obj.position);
+                if (!obj) return;
+
+                let data = null;
+                const worldPos = new THREE.Vector3();
+
+                if (obj.instanceData && intersect.instanceId !== undefined) {
+                    data = obj.instanceData[intersect.instanceId];
+                    const matrix = new THREE.Matrix4();
+                    obj.getMatrixAt(intersect.instanceId, matrix);
+                    worldPos.setFromMatrixPosition(matrix);
+                } else {
+                    data = obj.userData.mapData;
+                    obj.getWorldPosition(worldPos);
+                }
+
+                if (!data) return;
+
+                const assetType = Object.values(AssetTypes).find(a => a.id === data.assetType) || { 
+                    name: 'Estructura', 
+                    category: 'Estructura',
+                    id: 'unknown'
+                };
+
+                // Centering logic: set target pivot
+                targetFocus = new THREE.Vector3(worldPos.x, 0, worldPos.z);
+                
+                // Show Popup
+                document.getElementById('popupTitle').textContent = assetType.name;
+                document.getElementById('popupTag').textContent = (assetType.category || 'ESTRUCTURA').toUpperCase();
+                document.getElementById('popupAddr').textContent = `Sector ${assetType.id && assetType.id.includes('grande') ? 'A' : 'B'}, Posición (${worldPos.x.toFixed(0)}, ${worldPos.z.toFixed(0)})`;
+                document.getElementById('stallPopup').classList.add('active');
+
+                // Update highlight using thick wireframe (Anchored at floor)
+                window.selectionHighlight.clear();
+                const size = assetType.size || { width: 1, height: 1, depth: 1 };
+                
+                // Create geometry based on asset size
+                const thickness = 0.06; // Half thickness as requested
+                const wireframe = createThickWireframe(size.width + 0.1, size.height + 0.1, size.depth + 0.1, thickness);
+                window.selectionHighlight.add(wireframe);
+
+                window.selectionHighlight.userData.baseScale = new THREE.Vector3(1, 1, 1);
+                window.selectionHighlight.position.copy(worldPos);
+                window.selectionHighlight.position.y = 0; // Fix to floor
+                window.selectionHighlight.rotation.y = (data.rotation || 0) * Math.PI / 180;
+                window.selectionHighlight.visible = true;
+            } else {
+                // Click on ground closes popup
+                closePopup();
             }
         };
 
@@ -755,7 +2028,8 @@
             document.getElementById('zoomLevel').textContent = zoomValue.toFixed(1) + 'x';
         };
 
-
+        // Global Listeners
+        window.addEventListener('contextmenu', (e) => e.preventDefault());
         window.addEventListener('mousemove', onMouseMove);
         window.addEventListener('mousedown', onMouseDown);
         window.addEventListener('mouseup', onMouseUp);
@@ -776,10 +2050,43 @@
             requestAnimationFrame(animate);
             time += 0.01;
 
-            // Subtle floating animation for stalls
-            stallObjects.forEach((stall, index) => {
-                stall.position.y = 0.4 + Math.sin(time + index * 0.5) * 0.02;
-            });
+            // WASD Navigation
+            const zoomValue = camera.isOrthographicCamera ? camera.zoom : 1;
+            const moveSpeed = 0.2 / zoomValue;
+
+            const isMoving = (keys['KeyW'] || keys['KeyS'] || keys['KeyA'] || keys['KeyD']) && !keys['ControlLeft'] && !keys['ControlRight'];
+            if (isMoving) {
+                targetFocus = null; // Interrupt auto-center
+                if (keys['KeyW']) pivotPoint.z -= moveSpeed;
+                if (keys['KeyS']) pivotPoint.z += moveSpeed;
+                if (keys['KeyA']) pivotPoint.x -= moveSpeed;
+                if (keys['KeyD']) pivotPoint.x += moveSpeed;
+            }
+
+            // Smooth centering of the PIVOT
+            if (targetFocus) {
+                pivotPoint.lerp(targetFocus, 0.1);
+                if (pivotPoint.distanceTo(targetFocus) < 0.01) {
+                    targetFocus = null;
+                }
+            }
+
+            // Always update camera based on pivot
+            camera.position.copy(pivotPoint).add(viewOffset);
+            camera.lookAt(pivotPoint);
+
+            // Selection Highlight Animation (Breathing effect)
+            if (window.selectionHighlight && window.selectionHighlight.visible) {
+                const pulse = 1.02 + Math.sin(time * 5) * 0.04; 
+                window.selectionHighlight.scale.set(pulse, pulse, pulse);
+                
+                // Solid color pulse (only scale, no opacity pulse)
+                window.selectionHighlight.traverse(child => {
+                    if (child.material) {
+                        child.material.opacity = 1.0; // Solid color
+                    }
+                });
+            }
 
             renderer.render(scene, camera);
         };

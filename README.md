@@ -1,168 +1,224 @@
-# 🗺️ Feria 16 de Julio - Mapa 3D Interactivo
+# 🗺️ Mapa Interactivo 3D - Feria 16 de Julio
 
-Proyecto de mapa 3D interactivo de la Feria 16 de Julio con estilo cartoon inspirado en Overcooked.
+Aplicación web interactiva para visualizar y editar mapas 3D de la Feria 16 de Julio en El Alto, Bolivia. Construida con Three.js y diseñada con una interfaz inspirada en Google Maps.
+
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Three.js](https://img.shields.io/badge/Three.js-0.160.0-green)
+![Firebase](https://img.shields.io/badge/Firebase-Hosting-orange)
+
+## ✨ Características
+
+### 🎮 Visor de Mapa (`map.html`)
+
+- **Interfaz estilo Google Maps**: Controles flotantes familiares y fáciles de usar
+- **Menú hamburguesa**: Navegación y selección de capas integrada
+- **Sidebar de información**: Panel lateral con detalles de cada puesto
+- **Controles de zoom**: Botones flotantes (+/-) y atajos de teclado
+- **Brújula interactiva**: Orientación visual con reset de cámara
+- **Múltiples vistas**: Cambio entre vista isométrica y cenital
+- **Renderizado 3D optimizado**: Usando Universal Instancing para alto rendimiento
+
+### 🎨 Editor de Mapa (`creator.html`)
+
+- **Sistema de login**: Protección con contraseña (`admin123`)
+- **Herramientas de construcción**: Colocación y eliminación de estructuras
+- **Múltiples categorías**: Terreno y estructuras
+- **Sistema de capas**: Organización visual por tipo de elemento
+- **Rotación de objetos**: Control preciso de orientación
+- **Guardado automático**: Persistencia en LocalStorage con fallback a Firestore
+- **Universal Instancing**: Optimización para miles de objetos (3 draw calls)
+
+## 🚀 Inicio Rápido
+
+### Prerrequisitos
+
+- Node.js (v14 o superior)
+- Firebase CLI instalado globalmente
+
+```bash
+npm install -g firebase-tools
+```
+
+### Instalación
+
+1. **Clonar el repositorio**
+
+```bash
+git clone https://github.com/luphoeux/16dejulio.git
+cd 16dejulio
+```
+
+2. **Iniciar el servidor de desarrollo**
+
+```bash
+firebase emulators:start --only hosting
+```
+
+3. **Abrir en el navegador**
+
+- **Visor**: http://localhost:5000/map.html
+- **Editor**: http://localhost:5000/creator.html
 
 ## 📁 Estructura del Proyecto
 
 ```
-16 de Julio - Mapa/
-├── index.html          # Landing page principal (pública)
-├── map.html            # Visor 3D interactivo (público)
-├── creator.html        # Panel de creador (protegido)
-├── styles.css          # Sistema de diseño
-├── creator-backup.html # Backup del editor original
-└── README.md           # Este archivo
+16dejulio/
+├── index.html              # Página de inicio
+├── map.html                # Visor del mapa 3D
+├── creator.html            # Editor del mapa
+├── styles.css              # Estilos globales
+├── data-manager.js         # Gestión de datos (LocalStorage/Firestore)
+├── firebase-bridge.js      # Integración con Firebase
+├── lighting-config.js      # Configuración de iluminación 3D
+├── map-config.js           # Configuración del mapa
+├── firebase.json           # Configuración de Firebase
+└── README.md               # Este archivo
 ```
-
-## 🎯 Páginas
-
-### 1. Landing Page (`index.html`)
-- **Propósito**: Página principal pública
-- **Características**:
-  - Diseño vibrante estilo cartoon
-  - Hero section con animaciones
-  - Sección de características
-  - Call-to-action
-  - Totalmente responsive
-
-### 2. Visor 3D (`map.html`)
-- **Propósito**: Exploración pública del mapa
-- **Características**:
-  - Visualización 3D interactiva
-  - Controles intuitivos (arrastrar, zoom)
-  - Panel de estadísticas
-  - Animaciones sutiles
-  - Pantalla de carga y bienvenida
-
-### 3. Panel de Creador (`creator.html`)
-- **Propósito**: Herramienta de edición (solo para ti)
-- **Características**:
-  - Autenticación con contraseña
-  - Modo construcción y borrado
-  - Exportación de datos JSON
-  - Interfaz mejorada con estilo cartoon
-  - Indicador visual de modo activo
-
-## 🔐 Acceso al Creator
-
-**Contraseña por defecto**: `feria16dejulio2026`
-
-Para cambiar la contraseña:
-1. Abre `creator.html`
-2. Busca la línea: `const CREATOR_PASSWORD = "feria16dejulio2026";`
-3. Cambia el valor entre comillas
-4. Guarda el archivo
 
 ## 🎮 Controles
 
-### Visor Público (map.html)
-- **Arrastrar**: Mover la cámara
-- **Rueda del mouse**: Zoom in/out
-- **Clic**: Seleccionar puesto (muestra animación)
+### Visor (map.html)
 
-### Panel de Creador (creator.html)
-- **Arrastrar**: Mover la cámara
-- **Rueda del mouse**: Zoom in/out
-- **Clic**: Colocar puesto (modo construcción)
-- **Clic**: Eliminar puesto (modo borrado)
-- **Alt + Clic**: Eliminar puesto (en cualquier modo)
+| Acción               | Control                                        |
+| -------------------- | ---------------------------------------------- |
+| Mover mapa           | Arrastrar con botón central del mouse / WASD   |
+| Zoom                 | Rueda del mouse / Botones +/- / Teclas +/-     |
+| Rotar cámara         | Arrastrar con clic derecho                     |
+| Resetear orientación | Clic en la brújula                             |
+| Cambiar vista        | Botón de cámara (lateral izquierdo)            |
+| Abrir menú           | Botón hamburguesa (esquina superior izquierda) |
+| Ver información      | Clic en un puesto                              |
 
-## 📐 Sistema de Grilla
+### Editor (creator.html)
 
-**IMPORTANTE**: Todos los assets respetan una grilla exacta de 1x1 unidades.
+| Acción            | Control                              |
+| ----------------- | ------------------------------------ |
+| Colocar objeto    | Clic izquierdo en modo construcción  |
+| Borrar objeto     | Clic izquierdo en modo borrar        |
+| Rotar objeto      | Tecla R / Botón Rotar                |
+| Cambiar modo      | Teclas P (Pintar) / X (Borrar)       |
+| Cambiar categoría | Teclas 1 (Estructuras) / 2 (Terreno) |
+| Guardar           | Ctrl+S / Botón Guardar               |
+| Cambiar vista     | Tecla Q                              |
 
-### Tipos de Assets Disponibles:
+## 🛠️ Tecnologías
 
-| Asset | Tamaño en Grilla | Dimensiones 3D | Icono |
-|-------|------------------|----------------|-------|
-| Puesto 1x1 | 1x1 celdas | 1m x 0.8m x 1m | 🏪 |
-| Puesto 2x1 | 2x1 celdas | 2m x 1.2m x 1m | 🏬 |
-| Puesto 2x2 | 2x2 celdas | 2m x 1.5m x 2m | 🏢 |
-| Restaurante 3x2 | 3x2 celdas | 3m x 1.0m x 2m | 🍽️ |
-| Tienda 2x2 | 2x2 celdas | 2m x 1.3m x 2m | 👕 |
-| Mercado 3x3 | 3x3 celdas | 3m x 1.4m x 3m | 🛒 |
-| Kiosko 1x1 | 1x1 celdas | 1m x 0.6m x 1m | 🎪 |
-| Comida 4x2 | 4x2 celdas | 4m x 0.8m x 2m | 🌮 |
+- **Three.js 0.160.0**: Motor de renderizado 3D
+- **Firebase Hosting**: Alojamiento web
+- **LocalStorage API**: Persistencia local de datos
+- **Vanilla JavaScript**: Sin frameworks adicionales
+- **CSS3**: Estilos modernos con animaciones
 
-### Características del Sistema de Grilla:
+## 🎨 Características Técnicas
 
-- ✅ **Alineación perfecta**: Todos los assets se alinean exactamente con la grilla
-- ✅ **Sin solapamientos**: El sistema previene colocar assets que se solapen
-- ✅ **Indicador visual**: El cursor fantasma cambia de color:
-  - 🟢 Verde: Se puede colocar
-  - 🔴 Rojo: Hay solapamiento
-- ✅ **Múltiples tamaños**: Assets desde 1x1 hasta 4x2 celdas
-- ✅ **Posicionamiento inteligente**: Los assets multi-celda se centran correctamente
+### Optimización de Rendimiento
 
-## 🎨 Paleta de Colores
+- **Universal Instancing**: Renderiza miles de objetos con solo 3 draw calls
+- **Frustum Culling**: Solo renderiza objetos visibles
+- **Lazy Loading**: Carga de recursos bajo demanda
+- **Efficient Material Sharing**: Reutilización de materiales
 
-El proyecto usa una paleta vibrante inspirada en Overcooked:
+### Arquitectura de Datos
 
-- **Naranja Principal**: `#FF6B35`
-- **Amarillo**: `#FFD23F`
-- **Rojo**: `#EE4266`
-- **Azul/Verde**: `#3BCEAC`
-- **Púrpura**: `#9B59B6`
-- **Fondo Crema**: `#FFF8E7`
+- **Dual Storage**: LocalStorage como primario, Firestore como respaldo
+- **Fallback automático**: Si Firestore falla, usa LocalStorage
+- **Sincronización**: Guarda en ambos sistemas simultáneamente
 
-## 🚀 Cómo Usar
+## 🔧 Configuración
 
-### Desarrollo Local
+### Firebase (Opcional)
 
-1. Abre cualquier archivo HTML en tu navegador
-2. Para el creator, usa la contraseña configurada
-3. Los cambios se guardan en la sesión del navegador
+Para usar Firestore en producción:
 
-### Exportar Datos
+1. Crear un proyecto en [Firebase Console](https://console.firebase.google.com/)
+2. Actualizar `firebase-bridge.js` con tus credenciales:
 
-1. Accede a `creator.html`
-2. Crea tu mapa colocando puestos
-3. Haz clic en "💾 Exportar JSON"
-4. Los datos se copian automáticamente al portapapeles
-5. Pega los datos donde necesites
+```javascript
+const firebaseConfig = {
+  apiKey: "TU_API_KEY",
+  authDomain: "TU_AUTH_DOMAIN",
+  projectId: "TU_PROJECT_ID",
+  storageBucket: "TU_STORAGE_BUCKET",
+  messagingSenderId: "TU_MESSAGING_SENDER_ID",
+  appId: "TU_APP_ID",
+};
+```
 
-### Importar Datos al Visor
+### Cambiar Contraseña del Editor
 
-Para cargar datos reales en `map.html`:
+En `creator.html`, línea 618:
 
-1. Abre `map.html`
-2. Busca la sección `// --- Sample Data (Demo) ---`
-3. Reemplaza el array `demoStalls` con tus datos exportados
-4. Guarda y recarga la página
+```javascript
+if (password && password.value === "admin123") {
+  // Cambiar 'admin123' por tu contraseña
+}
+```
 
-## 📦 Tecnologías
+## 🚀 Despliegue
 
-- **Three.js**: Renderizado 3D
-- **HTML5/CSS3**: Estructura y estilos
-- **JavaScript ES6+**: Lógica e interactividad
-- **Google Fonts**: Tipografía (Fredoka, Poppins)
+### Firebase Hosting
 
-## 🎯 Próximas Mejoras Sugeridas
+1. **Iniciar sesión en Firebase**
 
-- [ ] Sistema de guardado persistente (localStorage o backend)
-- [ ] Diferentes tipos de puestos (comida, ropa, etc.)
-- [ ] Búsqueda de puestos
-- [ ] Información detallada de cada puesto
-- [ ] Modo nocturno
-- [ ] Exportar/importar datos desde archivo
-- [ ] Miniaturas de productos en cada puesto
-- [ ] Rutas y navegación entre puestos
+```bash
+firebase login
+```
 
-## 📝 Notas
+2. **Inicializar proyecto** (si no está inicializado)
 
-- El proyecto está diseñado para ser 100% frontend
-- No requiere servidor para funcionar
-- Los datos se pueden exportar/importar manualmente
-- La autenticación es básica (solo frontend)
+```bash
+firebase init hosting
+```
 
-## 🤝 Soporte
+3. **Desplegar**
 
-Para cambios o mejoras, edita los archivos directamente:
-- Estilos globales: `styles.css`
-- Landing: `index.html`
-- Visor: `map.html`
-- Creator: `creator.html`
+```bash
+firebase deploy --only hosting
+```
+
+### Otros Servicios
+
+El proyecto es compatible con cualquier servicio de hosting estático:
+
+- GitHub Pages
+- Netlify
+- Vercel
+- AWS S3 + CloudFront
+
+## 📝 Roadmap
+
+- [ ] Sistema de autenticación de usuarios
+- [ ] Búsqueda de puestos por nombre/categoría
+- [ ] Exportación de mapas a formatos 3D (GLTF, OBJ)
+- [ ] Modo multijugador colaborativo
+- [ ] Integración con Google Maps real
+- [ ] Soporte para dispositivos móviles táctiles
+- [ ] Temas personalizables (día/noche)
+
+## 🤝 Contribuir
+
+Las contribuciones son bienvenidas. Por favor:
+
+1. Fork el proyecto
+2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
+3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
+4. Push a la rama (`git push origin feature/AmazingFeature`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más detalles.
+
+## 👤 Autor
+
+**Lucho** - [@luphoeux](https://github.com/luphoeux)
+
+## 🙏 Agradecimientos
+
+- Three.js por el increíble motor 3D
+- Firebase por el hosting gratuito
+- La comunidad de El Alto por la inspiración
 
 ---
 
-**Hecho con ❤️ para la Feria 16 de Julio**
+⭐ Si este proyecto te fue útil, considera darle una estrella en GitHub

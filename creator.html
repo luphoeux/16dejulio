@@ -92,116 +92,193 @@
             display: block;
         }
 
-        /* Assets Panel - RIGHT SIDE */
-        #assets-panel {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: var(--border-radius-lg);
-            border: var(--border-width) solid var(--text-dark);
-            box-shadow: var(--shadow-lg);
-            width: 280px;
-            max-height: calc(100vh - 40px);
-            overflow-y: auto;
-            user-select: none;
+        /* --- ONI STYLE UI --- */
+        :root {
+            --oni-bg: #1a1f26;
+            --oni-panel: #272d37;
+            --oni-accent: #3bceac;
+            --oni-text: #e0e0e0;
+            --oni-border: #404854;
         }
 
-        .assets-title {
-            font-family: 'Fredoka', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin: 0 0 16px 0;
-            text-align: center;
-        }
-
-        .asset-item {
-            padding: 12px;
-            margin-bottom: 8px;
-            border: 3px solid var(--text-dark);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all var(--transition-fast);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: white;
-        }
-
-        .asset-item:hover {
-            transform: translateX(-4px);
-            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
-        }
-
-        .asset-item.selected {
-            background: linear-gradient(135deg, #FFD23F, #F7931E);
-            transform: translateX(-4px);
-            box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.2);
-        }
-
-        .asset-icon {
-            font-size: 28px;
-            width: 40px;
-            height: 40px;
+        #bottom-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: auto;
+            max-width: 95vw;
+            height: 70px;
+            background: rgba(26, 31, 38, 0.95);
+            border: 2px solid var(--oni-border);
+            border-radius: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
-            border: 2px solid var(--text-dark);
+            gap: 12px;
+            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+            backdrop-filter: blur(10px);
         }
 
-        .asset-info {
-            flex: 1;
+        .dock-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .asset-name {
-            font-weight: 600;
-            font-size: 13px;
-            color: var(--text-dark);
-            margin-bottom: 2px;
+        .dock-divider {
+            width: 2px;
+            height: 32px;
+            background: var(--oni-border);
+            margin: 0 4px;
         }
 
-        .asset-size {
-            font-size: 11px;
-            color: var(--text-muted);
-        }
-
-        /* Controls Panel - LEFT SIDE */
-        #ui-panel {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: var(--border-radius-lg);
-            border: var(--border-width) solid var(--text-dark);
-            box-shadow: var(--shadow-lg);
-            width: 250px;
-            user-select: none;
-        }
-
-        .panel-title {
-            font-family: 'Fredoka', sans-serif;
-            font-size: 20px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin: 0 0 8px 0;
-        }
-
-        .panel-subtitle {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 16px;
-            line-height: 1.4;
-        }
-
-        .btn-group {
+        .nav-item {
+            position: relative;
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            align-items: center;
+            justify-content: center;
+            min-width: 60px;
+            height: 60px;
+            color: var(--oni-text);
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 10px;
+            gap: 4px;
+            border: 2px solid transparent;
+            background: rgba(255, 255, 255, 0.03);
         }
+
+        .shortcut-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--oni-accent);
+            color: #1a1f26;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 1px 4px;
+            border-radius: 4px;
+            pointer-events: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .nav-item .icon { font-size: 20px; }
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .nav-item.active {
+            background: rgba(59, 206, 172, 0.15);
+            color: var(--oni-accent);
+            border-color: var(--oni-accent);
+            box-shadow: 0 0 15px rgba(59, 206, 172, 0.3);
+        }
+        
+        .nav-item.action-btn:active { transform: scale(0.92); }
+        .nav-item.highlight { 
+            background: linear-gradient(135deg, #3bceac, #2ecc71); 
+            color: #1a1f26; 
+            font-weight: bold; 
+        }
+        .nav-item.highlight .icon { color: #1a1f26; }
+        .nav-item.highlight:hover { 
+            background: #fff; 
+            box-shadow: 0 0 20px rgba(255,255,255,0.4);
+        }
+
+        #asset-selector {
+            position: fixed;
+            bottom: 70px;
+            left: 20px;
+            width: 320px;
+            max-height: 400px;
+            background: var(--oni-panel);
+            border: 2px solid var(--oni-border);
+            border-radius: 12px;
+            display: none;
+            flex-direction: column;
+            padding: 12px;
+            z-index: 999;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        #asset-selector.show { display: flex; }
+
+        .selector-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--oni-border);
+            padding-bottom: 8px;
+        }
+        .selector-header h4 { margin: 0; color: var(--oni-accent); font-size: 14px; text-transform: uppercase; }
+
+        .search-box {
+            background: var(--oni-bg);
+            border: 1px solid var(--oni-border);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            width: 100%;
+            margin-bottom: 12px;
+            font-size: 12px;
+            outline: none;
+        }
+        .search-box:focus { border-color: var(--oni-accent); }
+
+        .asset-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            overflow-y: auto;
+            max-height: 300px;
+            padding-right: 4px;
+        }
+
+        .asset-card {
+            background: var(--oni-bg);
+            border: 2px solid var(--oni-border);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .asset-card .icon { font-size: 24px; margin-bottom: 4px; }
+        .asset-card .name { font-size: 10px; color: var(--oni-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .asset-card:hover, .asset-card.active {
+            border-color: var(--oni-accent);
+            background: rgba(59, 206, 172, 0.1);
+        }
+
+        #overlay-bar { display: none; }
+
+        #tag-tooltip {
+            position: fixed;
+            pointer-events: none;
+            background: rgba(26, 31, 38, 0.95);
+            color: #e0e0e0;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border-left: 4px solid var(--oni-accent);
+            z-index: 10000;
+            display: none;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            font-family: 'Fredoka', sans-serif;
+            min-width: 200px;
+        }
+        #tag-tooltip .title { font-weight: 700; font-size: 16px; color: #fff; margin-bottom: 4px; }
+        #tag-tooltip .subtitle { font-size: 11px; color: var(--oni-accent); text-transform: uppercase; margin-bottom: 12px; font-weight: 700; }
+        #tag-tooltip ul { padding: 0; margin: 0; list-style: none; }
+        #tag-tooltip li { font-size: 12px; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+        #tag-tooltip li::before { content: "•"; color: var(--oni-accent); }
+
+        #ui-panel, #assets-panel { display: none !important; }
 
         .creator-btn {
             padding: 12px 16px;
@@ -318,23 +395,63 @@
         .notification.show {
             opacity: 1;
         }
+
+        /* Delete Filter Panel */
+        .delete-filter-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(26, 31, 38, 0.95);
+            border: 2px solid var(--oni-border);
+            border-radius: 12px;
+            padding: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        .delete-filter-panel.show { display: flex; }
+        .delete-filter-panel h4 {
+            margin: 0 0 8px 0;
+            color: var(--oni-accent);
+            font-size: 12px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .delete-filter-btn {
+            background: var(--oni-bg);
+            border: 2px solid var(--oni-border);
+            color: var(--oni-text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: 0.2s;
+            text-align: center;
+        }
+        .delete-filter-btn:hover {
+            border-color: var(--oni-accent);
+            background: rgba(59, 206, 172, 0.1);
+        }
+        .delete-filter-btn.active {
+            border-color: var(--oni-accent);
+            background: rgba(59, 206, 172, 0.15);
+            color: var(--oni-accent);
+            font-weight: bold;
+        }
     </style>
 </head>
 
 <body>
-    <!-- Login Overlay -->
+
+    <!-- Login Screen -->
     <div id="loginOverlay" class="login-overlay">
         <div class="login-box">
-            <h1 class="login-title">🔐 Creator Panel</h1>
-            <p class="login-subtitle">Acceso restringido solo para creadores</p>
-            <input type="password" id="passwordInput" class="login-input" placeholder="Ingresa tu contraseña"
-                autocomplete="off">
-            <p id="loginError" class="login-error">❌ Contraseña incorrecta</p>
-            <button onclick="attemptLogin()" class="btn btn-primary" style="width: 100%;">Ingresar</button>
-            <div style="margin-top: 20px;">
-                <a href="index.html" class="btn btn-outline"
-                    style="display: inline-block; width: 100%; text-decoration: none;">← Volver al inicio</a>
-            </div>
+            <h1 class="login-title">🎨 Panel de Creación</h1>
+            <p class="login-subtitle">Ingresa la contraseña para acceder</p>
+            <input type="password" id="loginPassword" class="login-input" placeholder="Contraseña" />
+            <button class="login-btn" onclick="attemptLogin()">Ingresar</button>
         </div>
     </div>
 
@@ -349,9 +466,9 @@
         <h2 class="panel-title">🎨 Controles</h2>
         <p class="panel-subtitle">
             <strong>Navegación:</strong><br>
-            • Arrastra: Mover<br>
+            • Arrastra (Botón Central): Mover Mapa<br>
             • Rueda: Zoom<br>
-            • Clic: Colocar/Borrar
+            • Clic Izquierdo: Colocar/Borrar
         </p>
         <div class="btn-group">
             <button class="creator-btn btn-build" onclick="window.setMode('build')">
@@ -366,526 +483,938 @@
             <button class="creator-btn btn-clear" onclick="window.clearMap()">
                 🧹 Limpiar Todo
             </button>
-            <button class="creator-btn btn-toggle-bg" onclick="window.toggleBackground()">
-                🖼️ Fondo
-            </button>
-            <button class="creator-btn btn-logout" onclick="logout()">
-                🚪 Salir
+
+            <button class="creator-btn btn-logout" onclick="window.location.href='index.html'">
+                🏠 Volver al Inicio
             </button>
         </div>
     </div>
 
-    <!-- Assets Panel (RIGHT) -->
-    <div id="assets-panel">
-        <h3 class="assets-title">📦 Assets</h3>
-        <div id="assetsList"></div>
+    <div id="stats">🏪 Estructuras: <span id="count">0</span></div>
+    <div id="notification" class="notification"></div>
+    <div id="tag-tooltip"></div>
+
+    <!-- Delete Filter Panel -->
+    <div id="delete-filter-panel" class="delete-filter-panel">
+        <h4>🗑️ Filtro de Borrado</h4>
+        <div class="delete-filter-btn active" onclick="setDeleteFilter('all')" id="delete-filter-all">
+            🌈 TODO
+        </div>
+        <div class="delete-filter-btn" onclick="setDeleteFilter('terreno')" id="delete-filter-terreno">
+            🟫 SUELO
+        </div>
+        <div class="delete-filter-btn" onclick="setDeleteFilter('estructura')" id="delete-filter-estructura">
+            🏢 EDIFICIOS
+        </div>
     </div>
 
-    <div id="stats">🏪 Elementos: <span id="count">0</span></div>
-    <div id="notification" class="notification"></div>
+    <!-- ONI UI Root Elements -->
+    <div id="bottom-bar">
+        <!-- Categories -->
+        <div class="dock-section">
+            <div class="nav-item active" id="cat-estructura" onclick="toggleCategory('estructura'); event.stopPropagation();" title="Estructuras (1)">
+                <span class="shortcut-badge">1</span>
+                <span class="icon">🏗️</span>
+                <span>BASE</span>
+            </div>
+            <div class="nav-item" onclick="toggleCategory('terreno'); event.stopPropagation();" title="Terrenos (2)">
+                <span class="shortcut-badge">2</span>
+                <span class="icon">🌍</span>
+                <span>TERRENO</span>
+            </div>
+        </div>
+
+        <div class="dock-divider"></div>
+
+        <!-- Modes & Tools -->
+        <div class="dock-section">
+            <div id="btn-mode-build" class="nav-item active" onclick="setMode('build'); event.stopPropagation();" title="Construir (P)">
+                <span class="shortcut-badge">P</span>
+                <span class="icon">✏️</span>
+                <span>PINTAR</span>
+            </div>
+            <div id="btn-mode-rotate" class="nav-item" onclick="rotateSelected(); event.stopPropagation();" title="Rotar (R)">
+                <span class="shortcut-badge">R</span>
+                <span class="icon">🔄</span>
+                <span>ROTAR</span>
+            </div>
+            <div id="btn-mode-delete" class="nav-item" onclick="setMode('delete'); event.stopPropagation();" title="Borrar (X)">
+                <span class="shortcut-badge">X</span>
+                <span class="icon">🗑️</span>
+                <span>BORRAR</span>
+            </div>
+        </div>
+
+        <div class="dock-divider"></div>
+
+        <!-- Camera Views -->
+        <div class="dock-section">
+            <div id="btn-cam-zenith" class="nav-item active" onclick="setCameraMode('zenith')" title="Cenital (Q)">
+                <span class="shortcut-badge">Q</span>
+                <span class="icon">🔝</span>
+                <span>CENITAL</span>
+            </div>
+            <div id="btn-cam-isometric" class="nav-item" onclick="setCameraMode('isometric')" title="Isométrico (Q)">
+                <span class="shortcut-badge">Q</span>
+                <span class="icon">📐</span>
+                <span>ISOM</span>
+            </div>
+        </div>
+
+        <div class="dock-divider"></div>
+
+        <!-- Actions -->
+        <div class="dock-section">
+            <div class="nav-item action-btn" onclick="saveMap()" title="Guardar (Ctrl+S)">
+                <span class="shortcut-badge">💾</span>
+                <span class="icon">💾</span>
+                <span>GUARDAR</span>
+            </div>
+            <div class="nav-item action-btn" onclick="clearMap()" title="Limpiar Todo">
+                <span class="icon">🧹</span>
+                <span>LIMPIAR</span>
+            </div>
+            <div id="preview-btn" class="nav-item action-btn highlight" onclick="togglePreview()" title="Ver Renderizado (F1)">
+                <span class="shortcut-badge">F1</span>
+                <span class="icon">👁️</span>
+                <span>PREVIEW</span>
+            </div>
+        </div>
+    </div>
+
+    <div id="asset-selector">
+        <div class="selector-header">
+            <h4 id="selector-title">ESTRUCTURAS</h4>
+            <span style="cursor:pointer;" onclick="closeSelector()">✖</span>
+        </div>
+        <input type="text" class="search-box" placeholder="Buscar..." id="asset-search" oninput="filterAssets()">
+        <div class="asset-grid" id="asset-grid"></div>
+    </div>
+
+    <div id="overlay-bar" style="display:none;"></div>
 
     <!-- Data Manager Script -->
     <script src="data-manager.js"></script>
 
     <!-- Map Configuration Script -->
     <script src="map-config.js"></script>
+    <script src="lighting-config.js"></script>
 
     <script type="importmap">
         {
             "imports": {
-                "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js"
+                "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.module.min.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
             }
         }
     </script>
 
     <script>
-        // Simple authentication
-        const CREATOR_PASSWORD = "feria16dejulio2026";
-
+        // Login system
         function attemptLogin() {
-            const password = document.getElementById('passwordInput').value;
-            const errorMsg = document.getElementById('loginError');
-
-            if (password === CREATOR_PASSWORD) {
-                document.getElementById('loginOverlay').classList.add('hidden');
-                sessionStorage.setItem('creatorAuth', 'true');
-                errorMsg.classList.remove('show');
+            const password = document.getElementById('loginPassword');
+            const overlay = document.getElementById('loginOverlay');
+            
+            if (password && password.value === 'admin123') {
+                if (overlay) {
+                    overlay.classList.add('hidden');
+                    setTimeout(() => overlay.style.display = 'none', 500);
+                }
             } else {
-                errorMsg.classList.add('show');
-                document.getElementById('passwordInput').value = '';
-                document.getElementById('passwordInput').focus();
+                alert('❌ Contraseña incorrecta');
+                if (password) password.value = '';
             }
         }
 
-        function logout() {
-            sessionStorage.removeItem('creatorAuth');
-            location.reload();
-        }
-
-        // Check if already authenticated
-        window.addEventListener('load', () => {
-            if (sessionStorage.getItem('creatorAuth') === 'true') {
-                document.getElementById('loginOverlay').classList.add('hidden');
+        // Allow Enter key to submit
+        document.addEventListener('DOMContentLoaded', () => {
+            const passwordInput = document.getElementById('loginPassword');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') attemptLogin();
+                });
             }
-
-            document.getElementById('passwordInput').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') attemptLogin();
-            });
         });
+    </script>
 
+    <script>
         // Notification system
         function showNotification(message) {
             const notif = document.getElementById('notification');
-            notif.textContent = message;
-            notif.classList.add('show');
-            setTimeout(() => {
-                notif.classList.remove('show');
-            }, 2000);
+            if (notif) {
+                notif.textContent = message;
+                notif.classList.add('show');
+                setTimeout(() => {
+                    notif.classList.remove('show');
+                }, 2000);
+            }
         }
     </script>
 
     <script type="module">
         import * as THREE from 'three';
+        import { RGBELoader } from 'three/addons/loaders/RGBELoader.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { db } from './firebase-bridge.js';
+
+        const gltfLoader = new GLTFLoader();
+        const modelCache = {};
 
         // --- Configuration ---
         let mode = 'build';
-        let selectedAssetType = AssetTypes.PUESTO_PEQUENO;
-        const placedObjects = [];
+        let selectedAssetType = AssetTypes.S_1X1;
+        let currentRotation = 0; // Degrees: 0, 90, 180, 270
         let mapData = [];
         let backgroundVisible = true;
 
-        const scene = new THREE.Scene();
-        scene.background = new THREE.Color(0x87CEEB);
+        // Selection Tool State
+        let isSelectionDragging = false;
+        let selectionStartGrid = { x: 0, z: 0 };
+        let selectionEndGrid = { x: 0, z: 0 };
+        let selectionGhost;
 
-        // Camera
-        const aspect = window.innerWidth / window.innerHeight;
-        const d = 10;
-        const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
-        camera.position.set(0, 40, 15);
-        camera.lookAt(0, 0, 0);
-
-        const renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        document.body.appendChild(renderer.domElement);
-
-        // --- Lighting ---
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-        scene.add(ambientLight);
-
-        const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
-        dirLight.position.set(10, 30, 10);
-        dirLight.castShadow = true;
-        scene.add(dirLight);
-
-        // --- Background Image (Map Reference) ---
-        const textureLoader = new THREE.TextureLoader();
-        let backgroundPlane;
-
-        // Load map as background using configuration
-        textureLoader.load(
-            getMapURL(), // Usar la función del archivo map-config.js
-            (texture) => {
-                const bgGeometry = new THREE.PlaneGeometry(100, 100);
-                const bgMaterial = new THREE.MeshBasicMaterial({
-                    map: texture,
-                    transparent: true,
-                    opacity: MapConfig.opacity
-                });
-                backgroundPlane = new THREE.Mesh(bgGeometry, bgMaterial);
-                backgroundPlane.rotation.x = -Math.PI / 2;
-                backgroundPlane.position.y = -0.01;
-                scene.add(backgroundPlane);
-                console.log('✅ Mapa de fondo cargado');
-                console.log(`📍 Ubicación: ${MapConfig.center.lat}, ${MapConfig.center.lng}`);
-                showNotification('🗺️ Mapa cargado');
-            },
-            undefined,
-            (error) => {
-                console.log('ℹ️ No se pudo cargar el mapa desde el servidor');
-                console.log('💡 Tip: Verifica tu conexión a internet');
-                console.log('💡 Tip: Puedes configurar las coordenadas en map-config.js');
-
-                // Fallback: Intentar cargar la imagen local si existe
-                textureLoader.load(
-                    'C:/Users/lucho/.gemini/antigravity/brain/b9dba412-989c-4631-ace5-4067ab0893a0/uploaded_image_1767087695994.jpg',
-                    (texture) => {
-                        const bgGeometry = new THREE.PlaneGeometry(100, 100);
-                        const bgMaterial = new THREE.MeshBasicMaterial({
-                            map: texture,
-                            transparent: true,
-                            opacity: 0.3
-                        });
-                        backgroundPlane = new THREE.Mesh(bgGeometry, bgMaterial);
-                        backgroundPlane.rotation.x = -Math.PI / 2;
-                        backgroundPlane.position.y = -0.01;
-                        scene.add(backgroundPlane);
-                        console.log('✅ Imagen de referencia local cargada');
-                        showNotification('🖼️ Imagen local cargada');
-                    },
-                    undefined,
-                    (error2) => {
-                        console.log('ℹ️ No hay mapa de fondo disponible');
-                        showNotification('⚠️ Sin mapa de fondo');
-                    }
-                );
+        // --- Helpers (Hoisting Fix) ---
+        function getLayerByCategory(category) {
+            switch (category) {
+                case 'terreno': return 0;
+                case 'estructura': return 1;
+                case 'item': return 2;
+                case 'detalle': return 3;
+                default: return 1;
             }
-        );
-
-        window.toggleBackground = () => {
-            if (backgroundPlane) {
-                backgroundVisible = !backgroundVisible;
-                backgroundPlane.visible = backgroundVisible;
-                showNotification(backgroundVisible ? '🖼️ Fondo visible' : '🖼️ Fondo oculto');
-            }
-        };
-
-        // --- Ground ---
-        const gridSize = 100;
-        const gridHelper = new THREE.GridHelper(gridSize, gridSize, 0x888888, 0xCCCCCC);
-        gridHelper.position.y = 0.01;
-        scene.add(gridHelper);
-
-        const planeGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
-        const planeMaterial = new THREE.MeshBasicMaterial({ visible: false });
-        const collisionPlane = new THREE.Mesh(planeGeometry, planeMaterial);
-        collisionPlane.rotation.x = -Math.PI / 2;
-        scene.add(collisionPlane);
-
-        // --- Ghost Cursor ---
-        let ghostMesh;
-        function updateGhostMesh() {
-            if (ghostMesh) scene.remove(ghostMesh);
-
-            const size = selectedAssetType.size;
-            const ghostGeo = new THREE.BoxGeometry(size.width, 0.1, size.depth);
-            const ghostMat = new THREE.MeshBasicMaterial({
-                color: mode === 'build' ? 0x2ECC71 : 0xE74C3C,
-                transparent: true,
-                opacity: 0.5
-            });
-            ghostMesh = new THREE.Mesh(ghostGeo, ghostMat);
-            scene.add(ghostMesh);
-        }
-        updateGhostMesh();
-
-        // --- Assets Panel UI ---
-        function renderAssetsPanel() {
-            const assetsList = document.getElementById('assetsList');
-            assetsList.innerHTML = '';
-
-            // Agrupar assets por categoría
-            const categories = {
-                'estructura': [],
-                'terreno': []
-            };
-
-            Object.values(AssetTypes).forEach(asset => {
-                const category = asset.category || 'estructura';
-                if (!categories[category]) categories[category] = [];
-                categories[category].push(asset);
-            });
-
-            // Renderizar cada categoría
-            const categoryNames = {
-                'estructura': '🏗️ ESTRUCTURAS',
-                'terreno': '🌍 TERRENOS'
-            };
-
-            Object.keys(categories).forEach(categoryKey => {
-                if (categories[categoryKey].length === 0) return;
-
-                // Título de categoría
-                const categoryTitle = document.createElement('div');
-                categoryTitle.style.cssText = `
-                    font-weight: 700;
-                    font-size: 12px;
-                    color: var(--text-dark);
-                    padding: 12px 8px 8px 8px;
-                    border-top: 2px solid #f0f0f0;
-                    margin-top: 8px;
-                `;
-                categoryTitle.textContent = categoryNames[categoryKey];
-                assetsList.appendChild(categoryTitle);
-
-                // Assets de la categoría
-                categories[categoryKey].forEach(asset => {
-                    const item = document.createElement('div');
-                    item.className = 'asset-item';
-                    if (asset.id === selectedAssetType.id) {
-                        item.classList.add('selected');
-                    }
-
-                    const icon = document.createElement('div');
-                    icon.className = 'asset-icon';
-                    icon.style.background = `#${asset.color.toString(16).padStart(6, '0')}`;
-                    icon.textContent = asset.icon;
-
-                    const info = document.createElement('div');
-                    info.className = 'asset-info';
-
-                    const name = document.createElement('div');
-                    name.className = 'asset-name';
-                    name.textContent = asset.name;
-
-                    const size = document.createElement('div');
-                    size.className = 'asset-size';
-                    const gridSize = asset.gridSize || { width: 1, depth: 1 };
-                    size.textContent = `${gridSize.width}x${gridSize.depth} celdas`;
-
-                    info.appendChild(name);
-                    info.appendChild(size);
-                    item.appendChild(icon);
-                    item.appendChild(info);
-
-                    item.addEventListener('click', () => {
-                        selectedAssetType = asset;
-                        renderAssetsPanel();
-                        updateGhostMesh();
-                        showNotification(`Seleccionado: ${asset.name}`);
-                    });
-
-                    assetsList.appendChild(item);
-                });
-            });
-        }
-        renderAssetsPanel();
-
-        // --- Data Management ---
-        function loadMapData() {
-            mapData = DataManager.load();
-
-            // Clear existing objects
-            placedObjects.forEach(obj => scene.remove(obj));
-            placedObjects.length = 0;
-
-            // Recreate objects from data
-            mapData.forEach(data => {
-                const assetType = Object.values(AssetTypes).find(a => a.id === data.assetType) || AssetTypes.PUESTO_PEQUENO;
-                createObject(data.x, data.z, assetType, false);
-            });
-
-            updateCount();
-            console.log('✅ Mapa cargado:', mapData.length, 'elementos');
         }
 
-        window.saveMap = () => {
-            DataManager.save(mapData);
-            showNotification('💾 Guardado exitoso!');
-        };
+        function updateVisibilityByFilter() {
+            const currentCat = selectedAssetType.category;
 
-        window.clearMap = () => {
-            if (confirm('¿Seguro que quieres eliminar todo el mapa?')) {
-                placedObjects.forEach(obj => scene.remove(obj));
-                placedObjects.length = 0;
-                mapData = [];
-                DataManager.clear();
-                updateCount();
-                showNotification('🧹 Mapa limpiado');
+            allInstancedMeshes.forEach(mesh => {
+                const isMatch = (currentCat === 'estructura');
+                mesh.material.transparent = true;
+                mesh.material.opacity = isMatch ? 1.0 : 0.2;
+            });
+
+            if (collisionPlane) {
+                collisionPlane.material.transparent = true;
+                collisionPlane.material.opacity = (currentCat === 'terreno') ? 1.0 : 0.2;
             }
-        };
 
-        // Load existing data on start
-        loadMapData();
+            updateTerrain();
+        }
 
-        // --- Interaction ---
-        const raycaster = new THREE.Raycaster();
-        const mouse = new THREE.Vector2();
-        let isMouseDown = false;
-        let prevMousePos = { x: 0, y: 0 };
+        function updateLayerVisuals() {
+            // This function is now handled by updateVisibilityByFilter
+            // and the instanced mesh logic.
+            // No specific action needed here as the visibility is managed
+            // at the instanced mesh level based on the active category.
+        }
 
-        window.setMode = (m) => {
-            mode = m;
-            const indicator = document.getElementById('modeIndicator');
-            const modeText = document.getElementById('modeText');
+        function getGridCenter(pos, assetType) {
+            const isRotated = currentRotation === 90 || currentRotation === 270;
+            const gw = isRotated ? assetType.gridSize.depth : assetType.gridSize.width;
+            const gd = isRotated ? assetType.gridSize.width : assetType.gridSize.depth;
+            
+            // Si el tamaño es par, centra en la línea (entero). Si es impar, centra en la celda (0.5).
+            const x = (gw % 2 === 0) ? Math.round(pos.x) : Math.floor(pos.x) + 0.5;
+            const z = (gd % 2 === 0) ? Math.round(pos.z) : Math.floor(pos.z) + 0.5;
+            
+            return { x, z, gw, gd };
+        }
 
-            if (m === 'build') {
-                indicator.className = 'mode-indicator mode-build';
-                modeText.textContent = 'Modo Construcción';
-            } else {
-                indicator.className = 'mode-indicator mode-delete';
-                modeText.textContent = 'Modo Borrar';
-            }
-            updateGhostMesh();
-        };
+        function canPlaceAsset(centerX, centerZ, assetType) {
+            const isRotated = currentRotation === 90 || currentRotation === 270;
+            const gw = isRotated ? assetType.gridSize.depth : assetType.gridSize.width;
+            const gd = isRotated ? assetType.gridSize.width : assetType.gridSize.depth;
+            const targetLayer = getLayerByCategory(assetType.category);
+            const startX = Math.floor(centerX - gw / 2);
+            const startZ = Math.floor(centerZ - gd / 2);
 
-        // Función mejorada para calcular posición en grilla según tamaño del asset
-        const getGridCenter = (pos, assetType) => {
-            const gridSize = assetType.gridSize || { width: 1, depth: 1 };
-
-            // Para assets de tamaño impar (1x1, 3x3, etc.), centrar en 0.5
-            // Para assets de tamaño par (2x2, 4x4, etc.), centrar en 0, 1, 2, etc.
-            const xOffset = gridSize.width % 2 === 1 ? 0.5 : 0;
-            const zOffset = gridSize.depth % 2 === 1 ? 0.5 : 0;
-
-            // Calcular la celda base (esquina inferior izquierda del asset)
-            const baseX = Math.floor(pos.x - (gridSize.width - 1) / 2);
-            const baseZ = Math.floor(pos.z - (gridSize.depth - 1) / 2);
-
-            // Calcular el centro del asset
-            return {
-                x: baseX + (gridSize.width / 2) + xOffset - 0.5,
-                z: baseZ + (gridSize.depth / 2) + zOffset - 0.5
-            };
-        };
-
-        // Verificar si un asset cabe en la posición sin solaparse
-        const canPlaceAsset = (centerX, centerZ, assetType) => {
-            const gridSize = assetType.gridSize || { width: 1, depth: 1 };
-            const halfWidth = gridSize.width / 2;
-            const halfDepth = gridSize.depth / 2;
-
-            // Verificar cada celda que ocuparía el asset
-            for (let dx = -Math.floor(halfWidth); dx < Math.ceil(halfWidth); dx++) {
-                for (let dz = -Math.floor(halfDepth); dz < Math.ceil(halfDepth); dz++) {
-                    const checkX = Math.floor(centerX + dx + 0.5);
-                    const checkZ = Math.floor(centerZ + dz + 0.5);
-
-                    // Verificar si algún asset existente ocupa esta celda
+            for (let x = startX; x < startX + gw; x++) {
+                for (let z = startZ; z < startZ + gd; z++) {
                     for (const data of mapData) {
-                        const existingAsset = Object.values(AssetTypes).find(a => a.id === data.assetType) || AssetTypes.PUESTO_PEQUENO;
-                        const existingGrid = existingAsset.gridSize || { width: 1, depth: 1 };
-                        const existingHalfW = existingGrid.width / 2;
-                        const existingHalfD = existingGrid.depth / 2;
+                        const existingAsset = Object.values(AssetTypes).find(a => a.id === data.assetType) || AssetTypes.S_1X1;
+                        const existingLayer = data.layer !== undefined ? data.layer : (existingAsset.category === 'terreno' ? 0 : 1);
+                        if (existingLayer !== targetLayer) continue;
+                        if (targetLayer === 0) continue; // Allow terrain overlapping
 
-                        for (let ex = -Math.floor(existingHalfW); ex < Math.ceil(existingHalfW); ex++) {
-                            for (let ez = -Math.floor(existingHalfD); ez < Math.ceil(existingHalfD); ez++) {
-                                const existingX = Math.floor(data.x + ex + 0.5);
-                                const existingZ = Math.floor(data.z + ez + 0.5);
+                        const egw = (data.rotation === 90 || data.rotation === 270) ? existingAsset.gridSize.depth : existingAsset.gridSize.width;
+                        const egd = (data.rotation === 90 || data.rotation === 270) ? existingAsset.gridSize.width : existingAsset.gridSize.depth;
+                        
+                        const eStartX = Math.floor(data.x - egw / 2 + 0.01);
+                        const eStartZ = Math.floor(data.z - egd / 2 + 0.01);
 
-                                if (checkX === existingX && checkZ === existingZ) {
-                                    return false; // Hay solapamiento
-                                }
-                            }
+                        if (x >= eStartX && x < eStartX + egw && z >= eStartZ && z < eStartZ + egd) {
+                            return false;
                         }
                     }
                 }
             }
-            return true; // No hay solapamiento
-        };
-
-
-        function createObject(x, z, assetType, addToData = true) {
-            const size = assetType.size;
-            const geometry = new THREE.BoxGeometry(size.width, size.height, size.depth);
-            const material = new THREE.MeshStandardMaterial({
-                color: assetType.color,
-                roughness: 0.7,
-                metalness: 0.2
-            });
-            const box = new THREE.Mesh(geometry, material);
-            box.position.set(x, size.height / 2, z);
-            box.castShadow = true;
-            box.receiveShadow = true;
-
-            // Add roof
-            const roofGeometry = new THREE.ConeGeometry(Math.max(size.width, size.depth) * 0.6, size.height * 0.4, 4);
-            const roofMaterial = new THREE.MeshStandardMaterial({
-                color: 0xFFFFFF,
-                roughness: 0.8
-            });
-            const roof = new THREE.Mesh(roofGeometry, roofMaterial);
-            roof.position.y = size.height * 0.7;
-            roof.rotation.y = Math.PI / 4;
-            box.add(roof);
-
-            scene.add(box);
-            placedObjects.push(box);
-
-            if (addToData) {
-                mapData.push({
-                    x,
-                    z,
-                    assetType: assetType.id,
-                    color: assetType.color
-                });
-            }
-
-            return box;
+            return true;
         }
 
         function updateCount() {
-            document.getElementById('count').innerText = mapData.length;
+            const countEl = document.getElementById('count');
+            if (countEl) {
+                const structures = mapData.filter(d => d.layer > 0);
+                countEl.innerText = structures.length;
+            }
         }
 
-        const onMouseMove = (event) => {
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        // --- Shared Materials (Must be defined before instancing) ---
+        const sharedRoofMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.8 });
+        const sharedBaseMat = new THREE.MeshStandardMaterial({ color: 0x999999 });
 
-            if (isMouseDown) {
-                const deltaX = event.clientX - prevMousePos.x;
-                const deltaY = event.clientY - prevMousePos.y;
-                const scale = (d * 2) / (window.innerHeight * camera.zoom);
+        // --- Universal Instancing (The "3 Draw Calls" Holy Grail) ---
+        let universalBody, universalRoof, universalFoundation;
+        const allInstancedMeshes = [];
 
-                camera.position.x -= deltaX * scale;
-                camera.position.z -= deltaY * scale;
+        function initInstancing(count = 5000) {
+            // Remove old ones if exist
+            allInstancedMeshes.forEach(m => scene.remove(m));
+            allInstancedMeshes.length = 0;
 
-                prevMousePos = { x: event.clientX, y: event.clientY };
+            const unitBodyGeo = new THREE.BoxGeometry(1, 1, 1);
+            const bodyMat = new THREE.MeshStandardMaterial({ roughness: 0.2, metalness: 0.1, transparent: true });
+            universalBody = new THREE.InstancedMesh(unitBodyGeo, bodyMat, count);
+            universalBody.castShadow = true;
+            universalBody.receiveShadow = true;
+
+            const unitRoofGeo = new THREE.ConeGeometry(0.7071, 0.4, 4);
+            unitRoofGeo.rotateY(Math.PI / 4);
+            universalRoof = new THREE.InstancedMesh(unitRoofGeo, sharedRoofMat, count);
+            universalRoof.castShadow = true;
+
+            const unitBaseGeo = new THREE.BoxGeometry(1, 1, 1);
+            universalFoundation = new THREE.InstancedMesh(unitBaseGeo, sharedBaseMat, count);
+            universalFoundation.receiveShadow = true;
+
+            // Metadata
+            universalBody.userData.category = 'estructura';
+            universalRoof.userData.category = 'estructura';
+            universalFoundation.userData.category = 'estructura';
+            universalBody.instanceData = [];
+
+            scene.add(universalBody);
+            scene.add(universalRoof);
+            scene.add(universalFoundation);
+            allInstancedMeshes.push(universalBody, universalRoof, universalFoundation);
+        }
+        // initInstancing() will be called after scene is created
+
+        function createObject(x, z, assetType, addToData = true, rotation = null) {
+            if (assetType.category === 'terreno') {
+                if (addToData) {
+                    const existingIdx = mapData.findIndex(d => d.x === x && d.z === z && d.layer === 0);
+                    if (existingIdx !== -1) mapData.splice(existingIdx, 1);
+                    mapData.push({ x, z, assetType: assetType.id, layer: 0, rotation: rotation || 0 });
+                }
+                updateTerrain();
+                return;
             }
 
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObject(collisionPlane);
-            if (intersects.length > 0 && ghostMesh) {
-                const center = getGridCenter(intersects[0].point, selectedAssetType);
-                ghostMesh.position.set(center.x, 0.01, center.z);
-
-                // Cambiar color del ghost según si se puede colocar
-                const canPlace = canPlaceAsset(center.x, center.z, selectedAssetType);
-                ghostMesh.material.color.set(mode === 'build' ? (canPlace ? 0x2ECC71 : 0xFF0000) : 0xE74C3C);
+            if (addToData) {
+                mapData.push({ 
+                    id: crypto.randomUUID(),
+                    x, z, assetType: assetType.id, 
+                    layer: getLayerByCategory(assetType.category), 
+                    rotation: rotation !== null ? rotation : currentRotation 
+                });
             }
+            applyState(mapData);
+        }
+
+        const dummy = new THREE.Object3D();
+        const colorObj = new THREE.Color();
+
+        function applyState(data) {
+            mapData = data;
+            
+            // Filters based on category
+            const buildings = mapData.filter(d => {
+                const type = Object.values(AssetTypes).find(a => a.id === d.assetType);
+                return type && type.category !== 'terreno';
+            });
+
+            // Sync instance count if needed
+            if (buildings.length > universalBody.count) {
+                initInstancing(buildings.length + 500);
+            }
+
+            // Reset counts
+            universalBody.count = buildings.length;
+            universalRoof.count = buildings.length;
+            universalFoundation.count = buildings.length;
+            universalBody.instanceData = [];
+
+            buildings.forEach((d, idx) => {
+                const type = Object.values(AssetTypes).find(a => a.id === d.assetType) || AssetTypes.S_1X1;
+                const size = type.size;
+                const rot = (d.rotation || 0) * Math.PI / 180;
+                const yOffset = (d.layer || 1) * 0.005;
+
+                // Body
+                dummy.position.set(d.x, yOffset + size.height / 2, d.z);
+                dummy.rotation.set(0, rot, 0);
+                dummy.scale.set(size.width, size.height, size.depth);
+                dummy.updateMatrix();
+                universalBody.setMatrixAt(idx, dummy.matrix);
+                
+                colorObj.setHex(type.color);
+                universalBody.setColorAt(idx, colorObj);
+
+                // Roof
+                dummy.position.set(d.x, yOffset + size.height * 0.7, d.z);
+                dummy.rotation.set(0, rot, 0);
+                dummy.scale.set(size.width, 1, size.depth);
+                dummy.updateMatrix();
+                universalRoof.setMatrixAt(idx, dummy.matrix);
+
+                // Foundation
+                dummy.position.set(d.x, yOffset + 0.025, d.z);
+                dummy.rotation.set(0, rot, 0);
+                dummy.scale.set(size.width + 0.1, 0.05, size.depth + 0.1);
+                dummy.updateMatrix();
+                universalFoundation.setMatrixAt(idx, dummy.matrix);
+
+                universalBody.instanceData[idx] = d;
+            });
+
+            universalBody.instanceMatrix.needsUpdate = true;
+            if (universalBody.instanceColor) universalBody.instanceColor.needsUpdate = true;
+            universalRoof.instanceMatrix.needsUpdate = true;
+            universalFoundation.instanceMatrix.needsUpdate = true;
+
+            updateTerrain();
+            updateCount();
+            updateLayerVisuals();
+            DataManager.save(mapData);
+        }
+
+        // --- History / Undo-Redo ---
+        const history = [];
+        const redoStack = [];
+        const maxHistory = 50;
+
+        function saveState() {
+            history.push(JSON.stringify(mapData));
+            if (history.length > maxHistory) history.shift();
+            redoStack.length = 0;
+        }
+
+        function undo() {
+            if (history.length === 0) return;
+            redoStack.push(JSON.stringify(mapData));
+            const state = JSON.parse(history.pop());
+            applyState(state);
+            showNotification('↩️ Deshacer');
+        }
+
+        function redo() {
+            if (redoStack.length === 0) return;
+            history.push(JSON.stringify(mapData));
+            const state = JSON.parse(redoStack.pop());
+            applyState(state);
+            showNotification('↪️ Rehacer');
+        }
+
+        // applyState is now defined in the createObject section (line ~815)
+        // This duplicate definition is removed to avoid conflicts
+
+        // --- Scene Setup (Technical Mode for Creator) ---
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x1a1f26); 
+        scene.fog = new THREE.Fog(0x1a1f26, 50, 150);
+
+        const aspect = window.innerWidth / window.innerHeight;
+        const d = 10;
+        const camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 1000);
+        camera.position.set(0, 100, 0);
+        camera.up.set(0, 0, -1);
+        const cameraTarget = new THREE.Vector3(0, 0, 0);
+        camera.lookAt(cameraTarget);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2; // Slightly higher for that vibrant look
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        document.body.appendChild(renderer.domElement);
+
+        // Technical flat lighting for Creator (No shadows, max visibility)
+        const ambientLight = new THREE.AmbientLight(0xffffff, 1.0);
+        scene.add(ambientLight);
+
+        // Initialize instanced meshes AFTER scene is created
+        initInstancing();
+
+        const terrainCanvas = document.createElement('canvas');
+        terrainCanvas.width = 2048;
+        terrainCanvas.height = 2048;
+        const terrainCtx = terrainCanvas.getContext('2d');
+        const terrainTexture = new THREE.CanvasTexture(terrainCanvas);
+
+        function updateTerrain() {
+            terrainCtx.fillStyle = '#272d37';
+            terrainCtx.fillRect(0, 0, terrainCanvas.width, terrainCanvas.height);
+
+            const scale = terrainCanvas.width / gridSize;
+            mapData.forEach(data => {
+                const asset = Object.values(AssetTypes).find(a => a.id === data.assetType);
+                if (!asset) return;
+
+                if (data.layer === 0 && asset.category === 'terreno') {
+                    terrainCtx.fillStyle = `#${asset.color.toString(16).padStart(6, '0')}`;
+                    const x = (data.x + gridSize/2 - asset.gridSize.width/2) * scale;
+                    const z = (data.z + gridSize/2 - asset.gridSize.depth/2) * scale;
+                    terrainCtx.fillRect(x, z, asset.gridSize.width * scale, asset.gridSize.depth * scale);
+                }
+            });
+            terrainTexture.needsUpdate = true;
+        }
+
+        const gridSize = 100;
+        const gridHelper = new THREE.GridHelper(gridSize, gridSize, 0x404854, 0x272d37);
+        gridHelper.position.y = 0.01;
+        scene.add(gridHelper);
+
+        const planeGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
+        const planeMaterial = new THREE.MeshStandardMaterial({ 
+            map: terrainTexture,
+            roughness: 1.0,
+            metalness: 0.0
+        });
+        const collisionPlane = new THREE.Mesh(planeGeometry, planeMaterial);
+        collisionPlane.rotation.x = -Math.PI / 2;
+        scene.add(collisionPlane);
+        
+        updateTerrain();
+
+        let ghostMesh;
+        function updateGhostMesh(gridX, gridZ) {
+            if (ghostMesh) scene.remove(ghostMesh);
+            const size = selectedAssetType.size;
+            let ghostGeo = (selectedAssetType.category === 'terreno' || selectedAssetType.isDecoration) ? 
+                new THREE.PlaneGeometry(size.width, size.depth) : 
+                new THREE.BoxGeometry(size.width, size.height, size.depth);
+
+            let ghostColor = mode === 'build' ? 0x3bceac : 0xE74C3C;
+            if (mode === 'build' && gridX !== undefined && gridZ !== undefined) {
+                if (!canPlaceAsset(gridX, gridZ, selectedAssetType)) {
+                    ghostColor = 0xff0000; // Red for cannot place
+                }
+            }
+
+            const ghostMat = new THREE.MeshBasicMaterial({
+                color: ghostColor,
+                transparent: true, opacity: 0.5
+            });
+            ghostMesh = new THREE.Mesh(ghostGeo, ghostMat);
+            if (selectedAssetType.category === 'terreno' || selectedAssetType.isDecoration) {
+                ghostMesh.rotation.x = -Math.PI / 2;
+                ghostMesh.rotation.z = -(currentRotation * Math.PI / 180);
+            } else { ghostMesh.rotation.y = currentRotation * Math.PI / 180; }
+            scene.add(ghostMesh);
+        }
+        updateGhostMesh();
+        let currentCategory = 'estructura';
+        let currentOverlay = 'normal';
+        let deleteFilter = 'all'; // 'all', 'terreno', 'estructura'
+
+        window.toggleCategory = (cat) => {
+            currentCategory = cat;
+            
+            // Default assets: 'Base' -> 1x1 Stall, 'Terreno' -> Grass
+            if (cat === 'estructura') {
+                selectedAssetType = AssetTypes.S_1X1;
+            } else if (cat === 'terreno') {
+                selectedAssetType = AssetTypes.PASTO;
+            }
+
+            setMode('build'); // Default to Paint when switching category
+            renderAssetGrid();
+            
+            const assetSelector = document.getElementById('asset-selector');
+            if (assetSelector) assetSelector.classList.add('show');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                const textEl = item.querySelector('span:last-child');
+                if (textEl) {
+                    const text = textEl.innerText.toLowerCase();
+                    const catMap = { terreno: 'terreno', base: 'estructura' };
+                    item.classList.toggle('active', catMap[text] === cat);
+                }
+            });
+            updateLayerVisuals();
+            updateGhostMesh(); // Update preview size
+            updateVisibilityByFilter(); // Update transparency
         };
 
-        const onMouseDown = (event) => {
-            if (event.button === 0) {
-                isMouseDown = true;
-                prevMousePos = { x: event.clientX, y: event.clientY };
+        window.updateLayerVisuals = () => {
+            const isEstructura = (currentCategory === 'estructura');
+            
+            allInstancedMeshes.forEach(mesh => {
+                mesh.material.transparent = true;
+                mesh.material.opacity = isEstructura ? 1.0 : 0.3;
+            });
 
-                if (!event.altKey && mode === 'build') placeObject();
-                else if (event.altKey || mode === 'delete') deleteObject();
-            }
+            collisionPlane.material.opacity = (currentCategory === 'terreno') ? 1.0 : 0.2;
+            updateTerrain();
         };
 
-        const onMouseUp = () => isMouseDown = false;
+        window.renderAssetGrid = () => {
+            const grid = document.getElementById('asset-grid');
+            const search = document.getElementById('asset-search').value.toLowerCase();
+            grid.innerHTML = '';
+            Object.values(AssetTypes).forEach(asset => {
+                if ((asset.category || 'estructura') !== currentCategory) return;
+                if (search && !asset.name.toLowerCase().includes(search)) return;
+                const card = document.createElement('div');
+                card.className = `asset-card ${selectedAssetType.id === asset.id ? 'active' : ''}`;
+                card.onclick = () => {
+                    selectedAssetType = asset;
+                    renderAssetGrid(); updateGhostMesh(); updateVisibilityByFilter();
+                };
+                card.innerHTML = `<div class="icon">${asset.icon}</div><div class="name">${asset.name.replace(/^[^\s]+\s/, '')}</div>`;
+                grid.appendChild(card);
+            });
+        };
 
-        const onWheel = (event) => {
-            camera.zoom = Math.max(0.2, Math.min(10, camera.zoom - event.deltaY * 0.001));
+        window.setOverlay = (m) => {
+            currentOverlay = m;
+            document.querySelectorAll('#dock-overlays .overlay-btn').forEach(btn => {
+                const textEl = btn.querySelector('span:last-child');
+                if (textEl) {
+                    const btnText = textEl.innerText.toLowerCase();
+                    const map = { general: 'normal', suelo: 'terreno', base: 'estructura' };
+                    btn.classList.toggle('active', map[btnText] === m);
+                }
+            });
+
+            allInstancedMeshes.forEach(mesh => {
+                const isMatch = (m === 'normal') || (mesh.userData.category === m);
+                mesh.material.transparent = true;
+                mesh.material.opacity = isMatch ? 1.0 : 0.15;
+            });
+
+            if (collisionPlane) {
+                collisionPlane.material.opacity = (m === 'normal' || m === 'terreno') ? 1.0 : 0.15;
+            }
+            updateTerrain();
+        };
+
+        let cameraMode = 'zenith';
+        const viewOffset = new THREE.Vector3(0, 100, 0);
+
+        window.setCameraMode = (m) => {
+            cameraMode = m;
+            const btnZenith = document.getElementById('btn-cam-zenith');
+            const btnIso = document.getElementById('btn-cam-isometric');
+            
+            if (btnZenith) btnZenith.classList.toggle('active', m === 'zenith');
+            if (btnIso) btnIso.classList.toggle('active', m === 'isometric');
+
+            if (m === 'isometric') {
+                viewOffset.set(20, 20, 20);
+                camera.up.set(0, 1, 0);
+            } else {
+                // High-angle "Zelda" Zenith: Top down but with a slight 15-deg tilt for depth
+                viewOffset.set(0, 35, 12); 
+                camera.up.set(0, 1, 0); // Standard Up vector
+            }
+            camera.position.copy(cameraTarget).add(viewOffset);
+            camera.lookAt(cameraTarget);
             camera.updateProjectionMatrix();
         };
 
-        const placeObject = () => {
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObject(collisionPlane);
-            if (intersects.length > 0) {
-                const center = getGridCenter(intersects[0].point, selectedAssetType);
+        let isPreview = false;
+        window.togglePreview = () => {
+            DataManager.save(mapData);
+            showNotification('🚀 Abriendo Preview...');
+            window.open('map.html', '_blank');
+        };
 
-                // Verificar si se puede colocar (sin solapamientos)
-                if (!canPlaceAsset(center.x, center.z, selectedAssetType)) {
-                    showNotification('❌ No se puede colocar aquí');
-                    return;
+        window.setDeleteFilter = (filter) => {
+            deleteFilter = filter;
+            const all = document.getElementById('delete-filter-all');
+            const terreno = document.getElementById('delete-filter-terreno');
+            const estructura = document.getElementById('delete-filter-estructura');
+            
+            if (all) all.classList.toggle('active', filter === 'all');
+            if (terreno) terreno.classList.toggle('active', filter === 'terreno');
+            if (estructura) estructura.classList.toggle('active', filter === 'estructura');
+        };
+
+        window.setMode = (m) => {
+            mode = m;
+            const modeIndicator = document.getElementById('modeIndicator');
+            const modeText = document.getElementById('modeText');
+            const btnBuild = document.getElementById('btn-mode-build');
+            const btnDelete = document.getElementById('btn-mode-delete');
+            const filterPanel = document.getElementById('delete-filter-panel');
+            
+            if (modeIndicator) modeIndicator.className = `mode-indicator mode-${m}`;
+            if (modeText) modeText.textContent = m === 'build' ? 'Modo Construcción' : 'Modo Borrar';
+            if (btnBuild) btnBuild.classList.toggle('active', m === 'build');
+            if (btnDelete) btnDelete.classList.toggle('active', m === 'delete');
+            if (filterPanel) filterPanel.classList.toggle('show', m === 'delete');
+            
+            updateGhostMesh();
+        };
+
+        window.rotateSelected = () => {
+            currentRotation = (currentRotation + 90) % 360;
+            updateGhostMesh();
+            showNotification(`🔄 Rotación: ${currentRotation}°`);
+        };
+
+        window.saveMap = async () => {
+            const now = Date.now();
+            if (now - lastSaveTime > 3000 || lastSaveTime === 0) {
+                showNotification('☁️ Sincronizando con Cloud...');
+                const success = await DataManager.saveToCloud(mapData, db);
+                if (success) {
+                    DataManager.save(mapData); // Cache local
+                    showNotification('✅ Sincronizado con Éxito');
+                    lastSaveTime = now;
+                } else {
+                    showNotification('❌ Fallo al sincronizar (Usando Cache Local)');
+                    DataManager.save(mapData);
                 }
-
-                createObject(center.x, center.z, selectedAssetType);
-                updateCount();
-
-                // Auto-save
-                DataManager.save(mapData);
+            } else {
+                showNotification(`⏳ Espera ${Math.ceil((3000 - (now - lastSaveTime))/1000)}s`);
             }
         };
 
-        const deleteObject = () => {
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(placedObjects);
-            if (intersects.length > 0) {
-                const obj = intersects[0].object.parent || intersects[0].object;
-                scene.remove(obj);
-                const index = placedObjects.indexOf(obj);
-                if (index > -1) {
-                    placedObjects.splice(index, 1);
-                    mapData.splice(index, 1);
-                    updateCount();
+        let autoSaveTimeout;
+        const requestAutoSave = () => {
+            if (autoSaveTimeout) clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(async () => {
+                DataManager.save(mapData);
+                // Opcional: Auto-save a la nube cada cierto tiempo o acciones importantes
+            }, 2000);
+        };
 
-                    // Auto-save
-                    DataManager.save(mapData);
+        window.clearMap = () => { if(confirm('¿Borrar todo?')) { mapData = []; applyState([]); DataManager.save([]); } };
+
+        let hoverCursor;
+        function initHoverCursor() {
+            hoverCursor = new THREE.Group();
+            
+            // 1. Fill Plane
+            const fillGeo = new THREE.PlaneGeometry(0.98, 0.98);
+            fillGeo.rotateX(-Math.PI / 2);
+            const fillMat = new THREE.MeshBasicMaterial({ 
+                color: 0x000000, 
+                transparent: true, 
+                opacity: 0.1,
+                depthWrite: false 
+            });
+            const fill = new THREE.Mesh(fillGeo, fillMat);
+            hoverCursor.add(fill);
+
+            // 2. Stroke (Dotted Outline)
+            const strokeGeo = new THREE.EdgesGeometry(new THREE.PlaneGeometry(1, 1));
+            strokeGeo.rotateX(-Math.PI / 2);
+            const strokeMat = new THREE.LineDashedMaterial({ 
+                color: 0x000000, 
+                dashSize: 0.1,
+                gapSize: 0.05,
+                transparent: true, 
+                opacity: 0.8
+            });
+            const stroke = new THREE.LineSegments(strokeGeo, strokeMat);
+            stroke.computeLineDistances();
+            hoverCursor.add(stroke);
+
+            hoverCursor.position.y = 0.05; 
+            hoverCursor.visible = false;
+            scene.add(hoverCursor);
+        }
+        initHoverCursor();
+
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        let isLeftDown = false; let isMiddleDown = false; let isSpaceDown = false; let isDragging = false;
+        const lastMousePos = { x: 0, y: 0 };
+        const keys = {};
+        let lastSaveTime = 0;
+
+        window.addEventListener('keydown', e => {
+            keys[e.code] = true;
+            // Mode Selectors
+            if(e.code === 'Digit1') toggleCategory('estructura');
+            if(e.code === 'Digit2') toggleCategory('terreno');
+            // Overlays (Removidos de UI pero mantenemos shortcuts por ahora)
+            if(e.code === 'Digit3') setOverlay('normal');
+            if(e.code === 'Digit4') setOverlay('terreno');
+            if(e.code === 'Digit5') setOverlay('estructura');
+            
+            if(e.code === 'KeyP') setMode('build');
+            if(e.code === 'KeyX') setMode('delete');
+            if(e.code === 'KeyR' && !e.ctrlKey) rotateSelected();
+            if(e.code === 'KeyE') rotateSelected(); // Keep E as secondary rotate
+            if(e.code === 'KeyQ') setCameraMode(cameraMode === 'zenith' ? 'isometric' : 'zenith');
+            if(e.code === 'F1') { e.preventDefault(); togglePreview(); }
+            
+            if(e.code === 'Space') isSpaceDown = true;
+            if(e.ctrlKey && e.code === 'KeyS') { 
+                e.preventDefault(); 
+                saveMap();
+            }
+            if(e.ctrlKey && e.code === 'KeyZ') undo();
+            if(e.ctrlKey && e.code === 'KeyY') redo();
+        });
+        window.addEventListener('keyup', e => { keys[e.code] = false; if(e.code === 'Space') isSpaceDown = false; });
+
+        const onMouseMove = (e) => {
+            mouse.x = (e.clientX/window.innerWidth)*2-1; mouse.y = -(e.clientY/window.innerHeight)*2+1;
+            const tooltip = document.getElementById('tag-tooltip');
+            raycaster.setFromCamera(mouse, camera);
+            const intersect = raycaster.intersectObject(collisionPlane);
+            
+            if (intersect.length > 0) {
+                const p = intersect[0].point;
+                const hits = raycaster.intersectObjects(allInstancedMeshes, true);
+                
+                tooltip.style.display = 'block'; 
+                tooltip.style.left = (e.clientX+20)+'px'; 
+                tooltip.style.top = (e.clientY+20)+'px';
+
+                const targetAsset = (mode === 'build') ? selectedAssetType : { gridSize: { width: 1, depth: 1 } };
+                const grid = getGridCenter(p, targetAsset);
+
+                if (ghostMesh) {
+                    const isValid = (selectedAssetType.category === 'terreno') || canPlaceAsset(grid.x, grid.z, selectedAssetType);
+                    ghostMesh.position.set(grid.x, 0.05, grid.z);
+                    ghostMesh.visible = (mode === 'build');
+                    ghostMesh.material.color.setHex(isValid ? 0x3bceac : 0xff3333);
+                }
+
+                if (hits.length > 0) {
+                    const { instanceId, object } = hits[0];
+                    const data = object.instanceData ? object.instanceData[instanceId] : null;
+
+                    if (data) {
+                        const asset = Object.values(AssetTypes).find(a => a.id === data.assetType) || AssetTypes.S_1X1;
+                        tooltip.innerHTML = `<div class="subtitle">${asset.category.toUpperCase()}</div><div class="title">${asset.name}</div><ul><li>Grid: ${data.x}, ${data.z}</li><li>Tamaño: ${asset.gridSize.width}x${asset.gridSize.depth}</li></ul>`;
+                        
+                        // Centrar cursor en el edificio existente
+                        if (hoverCursor) {
+                            const isRotated = data.rotation === 90 || data.rotation === 270;
+                            const gw = isRotated ? asset.gridSize.depth : asset.gridSize.width;
+                            const gd = isRotated ? asset.gridSize.width : asset.gridSize.depth;
+                            hoverCursor.position.set(data.x, 0.06, data.z);
+                            hoverCursor.scale.set(gw, 1, gd);
+                            hoverCursor.visible = true;
+                        }
+                    }
+                } else {
+                    // Si no hay edificio, snap al grid calculado arriba
+                    if (hoverCursor) {
+                        hoverCursor.position.set(grid.x, 0.05, grid.z);
+                        hoverCursor.scale.set(grid.gw, 1, grid.gd);
+                        hoverCursor.visible = true;
+                    }
+                    tooltip.style.display = 'none';
+                }
+
+                // CONTINUOUS ACTIONS
+                if (isLeftDown && !isSpaceDown) {
+                    if (mode === 'build' && selectedAssetType.category === 'terreno') {
+                        placeObject(true);
+                    } else if (mode === 'delete') {
+                        deleteObject(true);
+                    }
+                }
+            } else { 
+                if (hoverCursor) hoverCursor.visible = false; 
+                if (ghostMesh) ghostMesh.visible = false;
+                tooltip.style.display = 'none'; 
+            }
+
+            if (isMiddleDown || (isSpaceDown && isLeftDown)) {
+                const s = (d*2)/(window.innerHeight*camera.zoom);
+                camera.position.x -= (e.clientX - lastMousePos.x) * s * aspect;
+                camera.position.z -= (e.clientY - lastMousePos.y) * s;
+                cameraTarget.set(camera.position.x, 0, camera.position.z);
+                camera.lookAt(cameraTarget);
+            }
+            lastMousePos.x = e.clientX; lastMousePos.y = e.clientY;
+        };
+
+        const onMouseDown = e => { 
+            // Bloquear clic si estamos sobre la interfaz
+            if (e.target.closest('#bottom-bar') || e.target.closest('#asset-selector') || e.target.closest('#overlay-bar') || e.target.closest('#notification')) {
+                return;
+            }
+
+            if(e.button === 1) isMiddleDown = true;
+            if(e.button === 0) { isLeftDown = true; if(!isSpaceDown && mode==='build') { saveState(); placeObject(); } }
+        };
+        const onMouseUp = e => { isLeftDown = false; isMiddleDown = false; };
+
+        let lastPlacedGrid = { x: null, z: null };
+        const placeObject = (isDragging = false) => {
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObject(collisionPlane);
+            if(intersects.length > 0) {
+                const c = getGridCenter(intersects[0].point, selectedAssetType);
+                
+                // Evitar duplicados si estamos arrastrando
+                if (isDragging && c.x === lastPlacedGrid.x && c.z === lastPlacedGrid.z) return;
+                lastPlacedGrid = { x: c.x, z: c.z };
+
+                if(mode === 'delete') { deleteObject(); return; }
+                if(!canPlaceAsset(c.x, c.z, selectedAssetType)) {
+                    showNotification('🚫 Espacio ocupado');
+                    return;
+                }
+                createObject(c.x, c.z, selectedAssetType);
+                updateCount(); requestAutoSave();
+            }
+        };
+
+        const deleteObject = (isDragging = false) => {
+            raycaster.setFromCamera(mouse, camera);
+            const hits = raycaster.intersectObjects(allInstancedMeshes, true);
+            
+            if (hits.length > 0) {
+                const { instanceId, object } = hits[0];
+                const data = object.instanceData ? object.instanceData[instanceId] : null;
+                
+                if (data) {
+                    const asset = Object.values(AssetTypes).find(a => a.id === data.assetType) || AssetTypes.S_1X1;
+                    
+                    // Check if we should delete based on deleteFilter
+                    const shouldDelete = deleteFilter === 'all' || asset.category === deleteFilter;
+                    
+                    if (shouldDelete) {
+                        const mIdx = mapData.indexOf(data);
+                        if (mIdx !== -1) mapData.splice(mIdx, 1);
+                        
+                        applyState(mapData);
+                        requestAutoSave();
+                    }
+                }
+            } else if (deleteFilter === 'terreno' || deleteFilter === 'all') {
+                // Try to delete terrain if filter allows
+                const intersectsGround = raycaster.intersectObject(collisionPlane);
+                if (intersectsGround.length > 0) {
+                    const p = intersectsGround[0].point;
+                    const c = getGridCenter(p, { gridSize: { width: 1, depth: 1 } });
+                    
+                    // Evitar spam si estamos arrastrando
+                    if (isDragging && c.x === lastPlacedGrid.x && c.z === lastPlacedGrid.z) return;
+                    lastPlacedGrid = { x: c.x, z: c.z };
+
+                    // Buscar si hay terreno en esa coordenada y borrarlo
+                    const terrainIdx = mapData.findIndex(d => d.x === c.x && d.z === c.z && d.layer === 0);
+                    if (terrainIdx !== -1) {
+                        mapData.splice(terrainIdx, 1);
+                        updateTerrain();
+                        requestAutoSave();
+                    }
                 }
             }
         };
@@ -893,21 +1422,48 @@
         window.addEventListener('mousemove', onMouseMove);
         window.addEventListener('mousedown', onMouseDown);
         window.addEventListener('mouseup', onMouseUp);
-        window.addEventListener('wheel', onWheel, { passive: false });
-        window.addEventListener('resize', () => {
-            const aspect = window.innerWidth / window.innerHeight;
-            camera.left = -d * aspect;
-            camera.right = d * aspect;
+        window.addEventListener('wheel', e => { 
+            camera.zoom = Math.max(0.2, Math.min(10, camera.zoom - e.deltaY * 0.001));
             camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+        }, {passive:false});
+
+        toggleCategory('estructura');
+        
+        // Initial load (Prioridad Cloud)
+        (async () => {
+             showNotification('☁️ Cargando desde Cloud...');
+             const cloudData = await DataManager.loadFromCloud(db);
+             if (cloudData && cloudData.length > 0) {
+                 applyState(cloudData);
+                 showNotification('✅ Datos sincronizados');
+             } else {
+                 applyState(DataManager.load());
+             }
+        })();
 
         const animate = () => {
             requestAnimationFrame(animate);
+            
+            // WASD Movement (Horizontal plane move)
+            const moveSpeed = 0.3 / (camera.zoom || 1);
+            const isMoving = (keys['KeyW'] || keys['KeyS'] || keys['KeyA'] || keys['KeyD']) && !keys['ControlLeft'] && !keys['ControlRight'];
+            if (isMoving) {
+                const dirX = (keys['KeyD'] ? 1 : 0) - (keys['KeyA'] ? 1 : 0);
+                const dirZ = (keys['KeyS'] ? 1 : 0) - (keys['KeyW'] ? 1 : 0);
+                
+                // In Zenith mode, W/S moves Z, A/D moves X. 
+                // In Isometric mode, we might want to move relative to screen axes.
+                // For simplicity, we move on world X/Z axes.
+                cameraTarget.x += dirX * moveSpeed;
+                cameraTarget.z += dirZ * moveSpeed;
+                
+                camera.position.copy(cameraTarget).add(viewOffset);
+                camera.lookAt(cameraTarget);
+            }
+
             renderer.render(scene, camera);
         };
         animate();
     </script>
 </body>
-
 </html>
