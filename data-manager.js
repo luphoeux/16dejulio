@@ -255,6 +255,155 @@ const AssetTypes = {
   },
 };
 
+// === FUNCIONES GLOBALES DE EXPORTACIÓN/IMPORTACIÓN ===
+
+// Exportar mapa a archivo JSON
+window.exportMapToFile = function() {
+  try {
+    const mapData = DataManager.load();
+    if (!mapData || mapData.length === 0) {
+      alert('⚠️ No hay datos para exportar');
+      return;
+    }
+
+    const dataStr = JSON.stringify(mapData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `mapa-16julio-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    
+    console.log('📥 Mapa exportado:', mapData.length, 'elementos');
+    if (window.showNotification) {
+      window.showNotification(`✅ Exportado: ${mapData.length} elementos`);
+    }
+  } catch (error) {
+    console.error('❌ Error al exportar:', error);
+    alert('❌ Error al exportar el mapa');
+  }
+};
+
+// Importar mapa desde archivo JSON
+window.importMapFromFile = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const mapData = JSON.parse(e.target.result);
+      
+      if (!Array.isArray(mapData)) {
+        throw new Error('Formato inválido');
+      }
+
+      const confirm = window.confirm(
+        `¿Importar ${mapData.length} elementos?\n\n` +
+        `⚠️ Esto reemplazará el mapa actual.`
+      );
+
+      if (confirm) {
+        DataManager.save(mapData);
+        console.log('📤 Mapa importado:', mapData.length, 'elementos');
+        if (window.showNotification) {
+          window.showNotification(`✅ Importado: ${mapData.length} elementos`);
+        }
+        
+        // Recargar la página para aplicar cambios
+        setTimeout(() => location.reload(), 1000);
+      }
+    } catch (error) {
+      console.error('❌ Error al importar:', error);
+      alert('❌ Error: Archivo JSON inválido');
+    }
+  };
+  reader.readAsText(file);
+  
+  // Reset input para permitir reimportar el mismo archivo
+  event.target.value = '';
+};
+
+// Subir datos locales a Firestore
+window.syncToFirestore = async function() {
+  try {
+    const mapData = DataManager.load();
+    if (!mapData || mapData.length === 0) {
+      alert('⚠️ No hay datos locales para subir');
+      return;
+    }
+
+    if (!window.db) {
+      alert('❌ Firestore no está inicializado');
+      return;
+    }
+
+    const confirm = window.confirm(
+      `¿Subir ${mapData.length} elementos a Firestore?\n\n` +
+      `☁️ Esto sincronizará tu mapa local con la nube.`
+    );
+
+    if (!confirm) return;
+
+    if (window.showNotification) {
+      window.showNotification('⏳ Subiendo a Firestore...');
+    }
+
+    const success = await DataManager.saveToCloud(mapData, window.db);
+    
+    if (success) {
+      console.log('☁️ Sincronizado con Firestore:', mapData.length, 'elementos');
+      if (window.showNotification) {
+        window.showNotification(`✅ Subido a Firestore: ${mapData.length} elementos`);
+      }
+    } else {
+      alert('❌ Error al subir a Firestore');
+    }
+  } catch (error) {
+    console.error('❌ Error en syncToFirestore:', error);
+    alert('❌ Error al sincronizar con Firestore');
+  }
+};
+
+// Descargar datos de Firestore a local
+window.downloadFromFirestore = async function() {
+  try {
+    if (!window.db) {
+      alert('❌ Firestore no está inicializado');
+      return;
+    }
+
+    const confirm = window.confirm(
+      '¿Descargar mapa desde Firestore?\n\n' +
+      '⚠️ Esto reemplazará tu mapa local actual.'
+    );
+
+    if (!confirm) return;
+
+    if (window.showNotification) {
+      window.showNotification('⏳ Descargando de Firestore...');
+    }
+
+    const cloudData = await DataManager.loadFromCloud(window.db);
+    
+    if (cloudData && cloudData.length > 0) {
+      DataManager.save(cloudData);
+      console.log('⬇️ Descargado de Firestore:', cloudData.length, 'elementos');
+      if (window.showNotification) {
+        window.showNotification(`✅ Descargado: ${cloudData.length} elementos`);
+      }
+      
+      // Recargar para aplicar cambios
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      alert('⚠️ No hay datos en Firestore o error al descargar');
+    }
+  } catch (error) {
+    console.error('❌ Error en downloadFromFirestore:', error);
+    alert('❌ Error al descargar de Firestore');
+  }
+};
+
 // Exportar para uso global
 if (typeof window !== "undefined") {
   window.DataManager = DataManager;

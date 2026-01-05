@@ -5,6 +5,10 @@ firestore-debug.log
 ui-debug.log
 *.log
 
+# Firebase credentials (IMPORTANT: Keep API keys private)
+firebase-bridge.js
+firebase-config.js
+
 # Node modules
 node_modules/
 
@@ -37,3 +41,10 @@ build/
 
 # User data (optional - uncomment if you don't want to commit saved maps)
 # localStorage-backup.json
+
+# Security - Never commit these
+*.pem
+*.key
+*.cert
+secrets.json
+credentials.json

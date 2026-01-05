@@ -478,11 +478,30 @@
                 🗑️ Borrar
             </button>
             <button class="creator-btn btn-save" onclick="window.saveMap()">
-                💾 Guardar
+                💾 Guardar Local
             </button>
             <button class="creator-btn btn-clear" onclick="window.clearMap()">
                 🧹 Limpiar Todo
             </button>
+
+            <hr style="border-color: var(--oni-border); margin: 16px 0;">
+            
+            <button class="creator-btn btn-export" onclick="window.exportMapToFile()">
+                📥 Exportar JSON
+            </button>
+            <button class="creator-btn btn-import" onclick="document.getElementById('importFile').click()">
+                📤 Importar JSON
+            </button>
+            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="window.importMapFromFile(event)">
+            
+            <button class="creator-btn btn-sync" onclick="window.syncToFirestore()">
+                ☁️ Subir a Firestore
+            </button>
+            <button class="creator-btn btn-download" onclick="window.downloadFromFirestore()">
+                ⬇️ Bajar de Firestore
+            </button>
+
+            <hr style="border-color: var(--oni-border); margin: 16px 0;">
 
             <button class="creator-btn btn-logout" onclick="window.location.href='index.html'">
                 🏠 Volver al Inicio
@@ -537,6 +556,11 @@
                 <span class="shortcut-badge">R</span>
                 <span class="icon">🔄</span>
                 <span>ROTAR</span>
+            </div>
+            <div id="btn-mode-select" class="nav-item" onclick="setMode('select'); event.stopPropagation();" title="Seleccionar (S)">
+                <span class="shortcut-badge">S</span>
+                <span class="icon">👆</span>
+                <span>SELECCIONAR</span>
             </div>
             <div id="btn-mode-delete" class="nav-item" onclick="setMode('delete'); event.stopPropagation();" title="Borrar (X)">
                 <span class="shortcut-badge">X</span>
@@ -593,12 +617,226 @@
 
     <div id="overlay-bar" style="display:none;"></div>
 
+    <!-- Store Edit Modal -->
+    <div id="storeEditModal" class="store-modal hidden">
+        <div class="store-modal-content">
+            <div class="store-modal-header">
+                <h2>✏️ Editar Información de Tienda</h2>
+                <button class="store-modal-close" onclick="closeStoreModal()">✕</button>
+            </div>
+            
+            <div class="store-modal-body">
+                <!-- Tabs -->
+                <div class="store-tabs">
+                    <button class="store-tab active" onclick="switchStoreTab('basica')">📋 Básica</button>
+                    <button class="store-tab" onclick="switchStoreTab('contacto')">📞 Contacto</button>
+                    <button class="store-tab" onclick="switchStoreTab('horarios')">🕐 Horarios</button>
+                    <button class="store-tab" onclick="switchStoreTab('extras')">⭐ Extras</button>
+                </div>
+
+                <!-- Tab: Información Básica -->
+                <div id="tab-basica" class="store-tab-content active">
+                    <div class="store-form-grid">
+                        <div class="store-form-group full-width">
+                            <label>🏪 Nombre de la Tienda *</label>
+                            <input type="text" id="store-nombre" placeholder="Ej: Tienda Don Juan">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>🔢 ID de Tienda</label>
+                            <input type="text" id="store-id" readonly disabled>
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>📍 Número de Local</label>
+                            <input type="text" id="store-numeroLocal" placeholder="Ej: A-123">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>🏘️ Sector</label>
+                            <input type="text" id="store-sector" placeholder="Ej: Sector A">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>🏪 Tipo de Negocio</label>
+                            <select id="store-tipoNegocio" onchange="updateSubcategorias()">
+                                <option value="">Seleccionar...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>📂 Subcategoría</label>
+                            <select id="store-subCategoria">
+                                <option value="">Seleccionar...</option>
+                            </select>
+                        </div>
+                        
+                        <div class="store-form-group full-width">
+                            <label>📝 Descripción</label>
+                            <textarea id="store-descripcion" rows="3" placeholder="Describe tu negocio..."></textarea>
+                        </div>
+                        
+                        <div class="store-form-group full-width">
+                            <label>🛍️ Productos (separados por coma)</label>
+                            <input type="text" id="store-productos" placeholder="Ej: Ropa, Zapatos, Accesorios">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Contacto -->
+                <div id="tab-contacto" class="store-tab-content">
+                    <div class="store-form-grid">
+                        <div class="store-form-group">
+                            <label>📞 Teléfono</label>
+                            <input type="tel" id="store-telefono" placeholder="2-XXXXXX">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>📱 Celular</label>
+                            <input type="tel" id="store-celular" placeholder="7XXXXXXX">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>💬 WhatsApp</label>
+                            <input type="tel" id="store-whatsapp" placeholder="591 7XXXXXXX">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>📧 Email</label>
+                            <input type="email" id="store-email" placeholder="tienda@ejemplo.com">
+                        </div>
+                        
+                        <div class="store-form-group full-width">
+                            <label>🌐 Sitio Web</label>
+                            <input type="url" id="store-sitioWeb" placeholder="https://...">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>📘 Facebook</label>
+                            <input type="text" id="store-facebook" placeholder="facebook.com/...">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>📸 Instagram</label>
+                            <input type="text" id="store-instagram" placeholder="@usuario">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>🎵 TikTok</label>
+                            <input type="text" id="store-tiktok" placeholder="@usuario">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>🐦 Twitter</label>
+                            <input type="text" id="store-twitter" placeholder="@usuario">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Horarios -->
+                <div id="tab-horarios" class="store-tab-content">
+                    <div class="store-horarios-grid">
+                        <div class="horario-row">
+                            <label><input type="checkbox" id="horario-jueves" checked> Jueves</label>
+                            <input type="time" id="horario-jueves-inicio" value="08:00">
+                            <span>-</span>
+                            <input type="time" id="horario-jueves-fin" value="18:00">
+                        </div>
+                        <div class="horario-row">
+                            <label><input type="checkbox" id="horario-domingo" checked> Domingo</label>
+                            <input type="time" id="horario-domingo-inicio" value="08:00">
+                            <span>-</span>
+                            <input type="time" id="horario-domingo-fin" value="18:00">
+                        </div>
+                        <div class="horario-row">
+                            <label><input type="checkbox" id="horario-lunes"> Lunes</label>
+                            <input type="time" id="horario-lunes-inicio" value="08:00">
+                            <span>-</span>
+                            <input type="time" id="horario-lunes-fin" value="18:00">
+                        </div>
+                        <div class="horario-row">
+                            <label><input type="checkbox" id="horario-martes"> Martes</label>
+                            <input type="time" id="horario-martes-inicio" value="08:00">
+                            <span>-</span>
+                            <input type="time" id="horario-martes-fin" value="18:00">
+                        </div>
+                        <div class="horario-row">
+                            <label><input type="checkbox" id="horario-miercoles"> Miércoles</label>
+                            <input type="time" id="horario-miercoles-inicio" value="08:00">
+                            <span>-</span>
+                            <input type="time" id="horario-miercoles-fin" value="18:00">
+                        </div>
+                        <div class="horario-row">
+                            <label><input type="checkbox" id="horario-viernes"> Viernes</label>
+                            <input type="time" id="horario-viernes-inicio" value="08:00">
+                            <span>-</span>
+                            <input type="time" id="horario-viernes-fin" value="18:00">
+                        </div>
+                        <div class="horario-row">
+                            <label><input type="checkbox" id="horario-sabado"> Sábado</label>
+                            <input type="time" id="horario-sabado-inicio" value="08:00">
+                            <span>-</span>
+                            <input type="time" id="horario-sabado-fin" value="18:00">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tab: Extras -->
+                <div id="tab-extras" class="store-tab-content">
+                    <div class="store-form-grid">
+                        <div class="store-form-group full-width">
+                            <label>✨ Características</label>
+                            <div class="caracteristicas-grid">
+                                <label><input type="checkbox" id="car-tarjetas"> 💳 Acepta Tarjetas</label>
+                                <label><input type="checkbox" id="car-delivery"> 🚚 Delivery</label>
+                                <label><input type="checkbox" id="car-estacionamiento"> 🅿️ Estacionamiento</label>
+                                <label><input type="checkbox" id="car-accesible"> ♿ Accesible</label>
+                                <label><input type="checkbox" id="car-wifi"> 📶 WiFi</label>
+                                <label><input type="checkbox" id="car-bano"> 🚻 Baño Público</label>
+                            </div>
+                        </div>
+                        
+                        <div class="store-form-group full-width">
+                            <label>👤 Propietario</label>
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>Nombre</label>
+                            <input type="text" id="prop-nombre" placeholder="Nombre">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>Apellido</label>
+                            <input type="text" id="prop-apellido" placeholder="Apellido">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>CI</label>
+                            <input type="text" id="prop-ci" placeholder="Cédula de Identidad">
+                        </div>
+                        
+                        <div class="store-form-group">
+                            <label>Teléfono</label>
+                            <input type="tel" id="prop-telefono" placeholder="Teléfono">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="store-modal-footer">
+                <button class="store-btn store-btn-secondary" onclick="closeStoreModal()">Cancelar</button>
+                <button class="store-btn store-btn-primary" onclick="saveStoreData()">💾 Guardar</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Data Manager Script -->
     <script src="data-manager.js"></script>
 
     <!-- Map Configuration Script -->
     <script src="map-config.js"></script>
     <script src="lighting-config.js"></script>
+    <script src="store-data-structure.js"></script>
 
     <script type="importmap">
         {

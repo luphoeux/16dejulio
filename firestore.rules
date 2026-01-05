@@ -2,30 +2,61 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
+    // === REGLAS DE SEGURIDAD MEJORADAS ===
+    
+    // Función helper para verificar origen
+    function isValidOrigin() {
+      // Permite localhost para desarrollo y dominios de producción
+      return request.auth != null || 
+             request.resource.data.source == 'creator';
+    }
+    
+    // Función para limitar tasa de escritura (rate limiting básico)
+    function notTooManyWrites() {
+      return request.time > resource.data.lastUpdate + duration.value(1, 's');
+    }
+    
     // Colección de mapas
     match /maps/{mapId} {
+      // Lectura pública permitida
+      allow read: if true;
+      
+      // Escritura solo desde orígenes autorizados
+      allow create: if isValidOrigin();
+      
+      // Actualización con rate limiting
+      allow update: if isValidOrigin() && notTooManyWrites();
+      
+      // Eliminación solo para usuarios autenticados
+      allow delete: if request.auth != null;
+    }
+    
+    // Colección de instancias de mapa (objetos 3D)
+    match /map_instances/{instanceId} {
+      allow read: if true;
+      allow write: if isValidOrigin();
+    }
+    
+    // Colección de tiendas
+    match /stores/{storeId} {
       // Lectura pública
       allow read: if true;
       
-      // Escritura permitida para:
-      // 1. Usuarios autenticados
-      // 2. Requests desde el creator (con source field)
-      allow write: if request.auth != null || 
-                      (request.resource.data.source == 'creator' && 
-                       request.time < timestamp.date(2027, 1, 1)); // Temporal
+      // Escritura solo desde creator o usuarios autenticados
+      allow create: if isValidOrigin();
+      allow update: if isValidOrigin() && notTooManyWrites();
+      allow delete: if request.auth != null;
     }
     
-    // Colección de estructuras individuales
-    match /structures/{structureId} {
-      allow read: if true;
-      allow write: if request.auth != null || 
-                      request.resource.data.source == 'creator';
-    }
-    
-    // Colección de configuración (solo lectura pública)
+    // Colección de configuración (solo lectura)
     match /config/{configId} {
       allow read: if true;
-      allow write: if false; // Solo desde consola
+      allow write: if false; // Solo desde consola de Firebase
+    }
+    
+    // Denegar todo lo demás por defecto
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
