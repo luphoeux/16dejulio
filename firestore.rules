@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Colección de mapas
+    match /maps/{mapId} {
+      // Lectura pública
+      allow read: if true;
+      
+      // Escritura permitida para:
+      // 1. Usuarios autenticados
+      // 2. Requests desde el creator (con source field)
+      allow write: if request.auth != null || 
+                      (request.resource.data.source == 'creator' && 
+                       request.time < timestamp.date(2027, 1, 1)); // Temporal
+    }
+    
+    // Colección de estructuras individuales
+    match /structures/{structureId} {
+      allow read: if true;
+      allow write: if request.auth != null || 
+                      request.resource.data.source == 'creator';
+    }
+    
+    // Colección de configuración (solo lectura pública)
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if false; // Solo desde consola
+    }
+  }
+}
