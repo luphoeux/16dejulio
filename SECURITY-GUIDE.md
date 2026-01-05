@@ -11,7 +11,7 @@ GitHub detectó que tu Firebase API Key está expuesta públicamente. Aunque Fir
 #### En Google Cloud Console:
 
 1. Ve a: https://console.cloud.google.com/apis/credentials?project=dejulio3d
-2. Encuentra tu API Key: `AIzaSyC4js6Sx9W7siA-ElMJNrU4KbURDbsDYvg`
+2. Encuentra tu API Key (la que comienza con `AIzaSy...`)
 3. Click en **Editar**
 4. Configura:
 
