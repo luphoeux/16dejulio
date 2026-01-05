@@ -11,7 +11,16 @@
       "**/*.md",
       "package.json",
       "package-lock.json",
-      "firestore.rules"
+      "firestore.rules",
+      ".git/**",
+      ".gitignore",
+      "**/*.exe",
+      "**/*.dll",
+      "**/*.so",
+      "**/*.dylib",
+      ".firebaserc",
+      "firebase-debug.log",
+      "firestore-debug.log"
     ],
     "cleanUrls": true,
     "trailingSlash": false
